@@ -1,0 +1,200 @@
+import argparse
+import os
+import torch
+import csv
+from itertools import product
+from data import dataset_factory
+from models import build_lm_model
+from utils import set_seed
+try:
+    import wandb
+except ImportError:
+    wandb = None
+
+def parse_args() -> argparse.Namespace:
+    p = argparse.ArgumentParser(description="Run LM experiments for logical/arithmetic evaluation")
+
+    # LM experiment options
+    p.add_argument(
+        "--models", nargs="+", default=["gpt2", "neo", "opt", "pythia"], 
+        help="NLP models to include"
+    )
+
+    p.add_argument(
+        "--seeds", nargs="+", type=int, default=[42], 
+        help="NLP models to include"
+    )
+
+    p.add_argument(
+        "--datasets", nargs="+", default=["arithmetic_explicit_small", "arithmetic_implicit_medium", "arithmetic_large_all_ops", "arithmetic_negatives"],
+        help="choose the datasets to run the expirement on"
+    )
+
+    p.add_argument(
+        "--sizes", nargs="+", default=["small", "medium", "large"],
+        help="Sizes of models to include"
+    )
+
+    p.add_argument(
+        "--steps", nargs="*", default=[1000, 10000, 50000, 100000],
+        help="Training steps to evaluate (for snapshot experiments)"
+    )
+
+    # Logging / output
+    p.add_argument("--out", type=str, default="results.csv")
+    p.add_argument("--wandb-project", type=str, default="", help="W&B project name")
+    p.add_argument("--wandb-entity", type=str, default="", help="Optional W&B entity (team)")
+    p.add_argument("--wandb-mode", type=str, default="online", choices=["online", "offline", "disabled"]) 
+    p.add_argument("--wandb-group", type=str, default="", help="Optional group name")
+
+    return p.parse_args()
+
+
+def wandb_init_or_none(use: bool, project: str, entity: str, mode: str, config: dict, group: str, name: str):
+    if not use or wandb is None:
+        return None
+    return wandb.init(
+        project=project,
+        entity=(entity or None),
+        mode=mode,
+        config=config,
+        group=(group or None),
+        name=name
+    )
+
+def run_lm_experiment_datasets(
+    dataset_names: list,
+    models: list,
+    sizes: list,
+    steps: list,
+    seeds: list,
+    out_csv: str,
+    max_tokens: int,
+    use_cuda: bool,
+    prompt_template: str,
+    exact_match: bool,#bad improve plaese!
+    wandb_args: dict,
+    n_per_combo: int = 20
+):
+    """
+    Run LM logical/arithmetic evaluation across multiple datasets, models, sizes, snapshots, and seeds.
+    """
+    device = torch.device("cuda" if use_cuda and torch.cuda.is_available() else "cpu")
+    header_written = os.path.exists(out_csv)
+
+    with open(out_csv, "a", newline="") as f:
+        writer = csv.DictWriter(f, fieldnames=[
+            "dataset", "model", "size", "snapshot", "seed", "question", "prediction", "correct"
+        ])
+        if not header_written:
+            writer.writeheader()
+
+        for dataset_name in dataset_names:
+            # Build the dataset using your factory
+            df = dataset_factory(dataset_name, n_per_combo=n_per_combo)
+            questions = list(zip(df['text'].tolist(), df['answer_str'].tolist()))
+
+            for seed in seeds:
+                set_seed(seed)
+                
+                for model_name, size, step in product(models, sizes, steps):
+                    run_cfg = dict(
+                        dataset=dataset_name,
+                        model=model_name,
+                        size=size,
+                        snapshot=step,
+                        seed=seed,
+                        max_tokens=max_tokens,
+                        prompt_template=prompt_template
+                    )
+                    run_name = f"{dataset_name}-{model_name}-{size}-step{step}-s{seed}"
+                    wbr = wandb_init_or_none(
+                        use=bool(wandb_args.get("project")),
+                        project=wandb_args.get("project", ""),
+                        entity=wandb_args.get("entity", ""),
+                        mode=wandb_args.get("mode", "online"),
+                        config=run_cfg,
+                        group=wandb_args.get("group", dataset_name),
+                        name=run_name,
+                    )
+
+                    # Load model/tokenizer
+                    tokenizer, model, device = build_lm_model(model_name, phase=size, snapshot_step=f"step{step}" if step else None)
+                    
+                    for question, answer in questions:
+                        prompt = prompt_template.format(question=question)
+                        inputs = tokenizer(prompt, return_tensors="pt").to(device)
+                        
+                        with torch.no_grad():
+                            outputs = model.generate(**inputs, max_new_tokens=max_tokens, do_sample=False)
+                        pred_text = tokenizer.decode(outputs[0], skip_special_tokens=True)
+                        
+                        # Simple exact match evaluation
+                        correct = None
+                        if exact_match:
+                            correct = answer.strip() in pred_text
+
+                        writer.writerow({
+                            "dataset": dataset_name,
+                            "model": model_name,
+                            "size": size,
+                            "snapshot": step,
+                            "seed": seed,
+                            "question": question,
+                            "prediction": pred_text,
+                            "correct": correct
+                        })
+                        f.flush()
+
+                    if wbr is not None:
+                        wbr.finish()
+
+
+def main():
+    # Parse command-line arguments
+    args = parse_args()
+
+    # Set up WandB logging configuration
+    wandb_args = {
+        "project": args.wandb_project,
+        "entity": args.wandb_entity,
+        "mode": args.wandb_mode,
+        "group": args.wandb_group,
+    }
+
+    # Ensure output directory exists
+    out_dir = os.path.dirname(args.out)
+    if out_dir and not os.path.exists(out_dir):
+        os.makedirs(out_dir, exist_ok=True)
+
+    # Use seeds from command-line arguments
+    seeds = args.seeds if hasattr(args, "seeds") else [0, 1, 2]
+
+    # Maximum number of tokens to generate per question
+    max_tokens = 20
+
+    # Prompt template for LM evaluation
+    prompt_template = "{question} Answer:"
+
+    # Whether to use exact match evaluation
+    exact_match = True
+
+    # Run LM experiments across datasets, models, sizes, snapshots, and seeds
+    run_lm_experiment_datasets(
+        dataset_names=args.datasets,
+        models=args.models,
+        sizes=args.sizes,
+        steps=args.steps,
+        seeds=seeds,
+        out_csv=args.out,
+        max_tokens=max_tokens,
+        use_cuda=True,
+        prompt_template=prompt_template,
+        exact_match=exact_match,
+        wandb_args=wandb_args,
+        n_per_combo=20  # Number of examples per combination in each dataset
+    )
+
+
+if __name__ == "__main__":
+    main()
