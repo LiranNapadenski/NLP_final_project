@@ -126,7 +126,7 @@ def run_lm_experiment_datasets(
                         inputs = tokenizer(prompt, return_tensors="pt").to(device)
                         
                         with torch.no_grad():
-                            outputs = model.generate(**inputs, max_new_tokens=max_tokens, do_sample=False)
+                            outputs = model.generate(**inputs, max_new_tokens=max_tokens, do_sample=False, stop_strings="\n", tokenizer=tokenizer)
                         pred_text = tokenizer.decode(outputs[0], skip_special_tokens=True)
                         
                         # Simple exact match evaluation
@@ -141,6 +141,7 @@ def run_lm_experiment_datasets(
                             "snapshot": step,
                             "seed": seed,
                             "question": question,
+                            "correctAnswer:" : answer,
                             "prediction": pred_text,
                             "correct": correct
                         })
@@ -174,7 +175,7 @@ def main():
     max_tokens = 20
 
     # Prompt template for LM evaluation
-    prompt_template = "{question} Answer:"
+    prompt_template = "Question: {question} \nAnswer:"
 
     # Whether to use exact match evaluation
     exact_match = True

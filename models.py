@@ -5,10 +5,10 @@ from transformers import AutoTokenizer, AutoModelForCausalLM
 PUBLIC_CHECKPOINTS = {
     "pythia-70m": ["step1000", "step10000", "step50000", "step100000", "step143000"],
     "pythia-160m": ["step1000", "step10000", "step50000", "step100000"],
-    "pythia-410m": ["step1000", "step10000", "step50000", "step100000"],  # large model snapshots
+    "pythia-1.4B": ["step1000", "step10000", "step50000", "step100000"],  # large model snapshots
 }
 
-def build_lm_model(name: str, phase: str = "small", snapshot_step_int: int = None):
+def build_lm_model(name: str, phase: str = "small", snapshot_step: str = None):
     """
     Build a language model (small/medium/large) or load a public checkpoint from Hugging Face Hub.
     
@@ -52,28 +52,30 @@ def build_lm_model(name: str, phase: str = "small", snapshot_step_int: int = Non
             base_name = "EleutherAI/pythia-160m-deduped"
             checkpoint_list = PUBLIC_CHECKPOINTS["pythia-160m"]
         else:  # large
-            base_name = "EleutherAI/pythia-410m-deduped"
-            checkpoint_list = PUBLIC_CHECKPOINTS["pythia-410m"]
+            base_name = "EleutherAI/pythia-1.4B-deduped"
+            checkpoint_list = PUBLIC_CHECKPOINTS["pythia-1.4B"]
 
         
-        if snapshot_step_int:
-            snapshot_step="step"+snapshot_step_int
+        if snapshot_step:
             if snapshot_step not in checkpoint_list:
                 raise ValueError(f"Snapshot {snapshot_step} not available for {base_name}")
-            model_name = f"{base_name}/{snapshot_step}"
+            model_name = base_name
+            revision = snapshot_step
         else:
             model_name = base_name
+            revision = None
     else:
         raise ValueError(f"Unknown model: {name}")
     
     device = "cuda" if torch.cuda.is_available() else "cpu"
     print(f"Loading {model_name} on {device}...")
     
-    tokenizer = AutoTokenizer.from_pretrained(model_name)
+    tokenizer = AutoTokenizer.from_pretrained(base_name, revision=snapshot_step)
     if tokenizer.pad_token is None:
         tokenizer.pad_token = tokenizer.eos_token
     
-    model = AutoModelForCausalLM.from_pretrained(model_name)
+    model = AutoModelForCausalLM.from_pretrained(base_name, revision=snapshot_step)
+    model.config.pad_token_id = tokenizer.pad_token_id
     model.to(device)
     model.eval()
     

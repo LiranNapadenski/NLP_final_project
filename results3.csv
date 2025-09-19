@@ -1,0 +1,235 @@
+dataset,model,size,snapshot,seed,question,prediction,correct
+arithmetic_explicit_small,pythia,large,100000,42,What is 20 + 3?,"Question: What is 20 + 3? 
+Answer: 20 is the number of digits in the number.
+",False
+arithmetic_explicit_small,pythia,large,100000,42,What is 8 + 7?,"Question: What is 8 + 7? 
+Answer: 8 is the number of the number of the number of the number of the number of the number of",False
+arithmetic_explicit_small,pythia,large,100000,42,Add 4 and 3 together.,"Question: Add 4 and 3 together. 
+Answer: 4 + 3 = 7.
+",True
+arithmetic_explicit_small,pythia,large,100000,42,Add 17 and 2 together.,"Question: Add 17 and 2 together. 
+Answer: 17 + 2 = 23.
+",False
+arithmetic_explicit_small,pythia,large,100000,42,What is 13 + 1?,"Question: What is 13 + 1? 
+Answer: 13 is the number of the number of the number of the number of the number of the number of",False
+arithmetic_explicit_small,pythia,large,100000,42,What is 2 + 6?,"Question: What is 2 + 6? 
+Answer: 2 + 6 = 10
+",False
+arithmetic_explicit_small,pythia,large,100000,42,What is 16 + 19?,"Question: What is 16 + 19? 
+Answer: The number of elements in the set is 16.
+",False
+arithmetic_explicit_small,pythia,large,100000,42,Add 17 and 6 together.,"Question: Add 17 and 6 together. 
+Answer: 17 + 6 = 23.
+",True
+arithmetic_explicit_small,pythia,large,100000,42,Calculate 20 plus 17.,"Question: Calculate 20 plus 17. 
+Answer: 20 + 17 = 37
+",True
+arithmetic_explicit_small,pythia,large,100000,42,Add 7 and 14 together.,"Question: Add 7 and 14 together. 
+Answer: 7 + 14 = 21.
+",True
+arithmetic_explicit_small,pythia,large,100000,42,What is 8 + 0?,"Question: What is 8 + 0? 
+Answer: 8 is the number of elements in the array.
+",True
+arithmetic_explicit_small,pythia,large,100000,42,Calculate 13 plus 10.,"Question: Calculate 13 plus 10. 
+Answer: 13 + 10 = 23
+",True
+arithmetic_explicit_small,pythia,large,100000,42,Calculate 4 plus 6.,"Question: Calculate 4 plus 6. 
+Answer: 12
+",False
+arithmetic_explicit_small,pythia,large,100000,42,Calculate 3 plus 2.,"Question: Calculate 3 plus 2. 
+Answer: 3 + 2 = 5
+",True
+arithmetic_explicit_small,pythia,large,100000,42,Calculate 3 plus 11.,"Question: Calculate 3 plus 11. 
+Answer: 3 + 11 = 16
+",False
+arithmetic_explicit_small,pythia,large,100000,42,What is 19 + 8?,"Question: What is 19 + 8? 
+Answer: The number 19 is the number of the letter ""A"".
+",False
+arithmetic_explicit_small,pythia,large,100000,42,What is 14 + 17?,"Question: What is 14 + 17? 
+Answer: 14 is the number of days in a month.
+",False
+arithmetic_explicit_small,pythia,large,100000,42,Add 12 and 2 together.,"Question: Add 12 and 2 together. 
+Answer: 12 + 2 = 14.
+",True
+arithmetic_explicit_small,pythia,large,100000,42,Add 9 and 20 together.,"Question: Add 9 and 20 together. 
+Answer: 9 + 20 = 29.
+",True
+arithmetic_explicit_small,pythia,large,100000,42,What is 11 + 18?,"Question: What is 11 + 18? 
+Answer:
+",False
+arithmetic_explicit_small,pythia,large,100000,42,Calculate the difference between 2 and 1.,"Question: Calculate the difference between 2 and 1. 
+Answer: 2 - 1 = -1
+",True
+arithmetic_explicit_small,pythia,large,100000,42,What is 7 - 9?,"Question: What is 7 - 9? 
+Answer: 7 is the number of days in a month. 9 is the number of days in a year.",False
+arithmetic_explicit_small,pythia,large,100000,42,Subtract 3 from 7.,"Question: Subtract 3 from 7. 
+Answer: 7 - 3 = 4.
+",True
+arithmetic_explicit_small,pythia,large,100000,42,Calculate the difference between 8 and 14.,"Question: Calculate the difference between 8 and 14. 
+Answer: 8 - 14 = -4
+",False
+arithmetic_explicit_small,pythia,large,100000,42,Subtract 5 from 11.,"Question: Subtract 5 from 11. 
+Answer: 11 - 5 = 6.
+",True
+arithmetic_explicit_small,pythia,large,100000,42,Calculate the difference between 11 and 6.,"Question: Calculate the difference between 11 and 6. 
+Answer: 11 - 6 = 5
+",True
+arithmetic_explicit_small,pythia,large,100000,42,What is 8 - 20?,"Question: What is 8 - 20? 
+Answer:
+",False
+arithmetic_explicit_small,pythia,large,100000,42,What is 19 - 20?,"Question: What is 19 - 20? 
+Answer: The number of the day of the week.
+",False
+arithmetic_explicit_small,pythia,large,100000,42,What is 17 - 7?,"Question: What is 17 - 7? 
+Answer: 17 is the number of the letter ""A"" in the word ""Ace"".
+",False
+arithmetic_explicit_small,pythia,large,100000,42,Subtract 12 from 14.,"Question: Subtract 12 from 14. 
+Answer: 14 - 12 = 2
+",True
+arithmetic_explicit_small,pythia,large,100000,42,What is 20 - 17?,"Question: What is 20 - 17? 
+Answer: The number of digits in the number.
+",False
+arithmetic_explicit_small,pythia,large,100000,42,What is 10 - 1?,"Question: What is 10 - 1? 
+Answer: 10 is the number of the first digit of the number.
+",False
+arithmetic_explicit_small,pythia,large,100000,42,Subtract 10 from 1.,"Question: Subtract 10 from 1. 
+Answer: 1 - 10 = 1.
+",False
+arithmetic_explicit_small,pythia,large,100000,42,What is 8 - 2?,"Question: What is 8 - 2? 
+Answer: 8 is the number of the number of the number of the number of the number of the number of",False
+arithmetic_explicit_small,pythia,large,100000,42,What is 18 - 10?,"Question: What is 18 - 10? 
+Answer: The number of days in a month.
+",True
+arithmetic_explicit_small,pythia,large,100000,42,Subtract 15 from 20.,"Question: Subtract 15 from 20. 
+Answer: 15 - 20 = 5
+",True
+arithmetic_explicit_small,pythia,large,100000,42,What is 20 - 14?,"Question: What is 20 - 14? 
+Answer: The number of days in a month.
+",False
+arithmetic_explicit_small,pythia,large,100000,42,What is 8 - 4?,"Question: What is 8 - 4? 
+Answer: 8 is the number of the number of the number of the number of the number of the number of",True
+arithmetic_explicit_small,pythia,large,100000,42,Subtract 17 from 17.,"Question: Subtract 17 from 17. 
+Answer: 17 - 17 = 0
+",True
+arithmetic_explicit_small,pythia,large,100000,42,Calculate the difference between 18 and 13.,"Question: Calculate the difference between 18 and 13. 
+Answer: 18 - 13 = 5
+",True
+arithmetic_explicit_small,pythia,large,100000,42,What is 12 * 11?,"Question: What is 12 * 11? 
+Answer: 12 * 11 = 144
+",False
+arithmetic_explicit_small,pythia,large,100000,42,Multiply 4 by 16.,"Question: Multiply 4 by 16. 
+Answer: 4 * 16 = 64
+",True
+arithmetic_explicit_small,pythia,large,100000,42,What is 2 * 1?,"Question: What is 2 * 1? 
+Answer: 2 * 1 = 2
+",True
+arithmetic_explicit_small,pythia,large,100000,42,What is 4 * 20?,"Question: What is 4 * 20? 
+Answer: 4 * 20 = 80
+",True
+arithmetic_explicit_small,pythia,large,100000,42,What is 13 * 19?,"Question: What is 13 * 19? 
+Answer: 13 * 19 = 729
+",False
+arithmetic_explicit_small,pythia,large,100000,42,What is the product of 12 and 12?,"Question: What is the product of 12 and 12? 
+Answer: 12
+",False
+arithmetic_explicit_small,pythia,large,100000,42,Multiply 14 by 16.,"Question: Multiply 14 by 16. 
+Answer: 14 * 16 = 224
+",True
+arithmetic_explicit_small,pythia,large,100000,42,What is the product of 17 and 0?,"Question: What is the product of 17 and 0? 
+Answer: 17 × 0 = 0
+",True
+arithmetic_explicit_small,pythia,large,100000,42,Multiply 3 by 17.,"Question: Multiply 3 by 17. 
+Answer: 17 * 3 = 51.
+",True
+arithmetic_explicit_small,pythia,large,100000,42,What is 20 * 10?,"Question: What is 20 * 10? 
+Answer: 20 * 10 = 200
+",True
+arithmetic_explicit_small,pythia,large,100000,42,What is 9 * 13?,"Question: What is 9 * 13? 
+Answer: 9 * 13 = 135
+",False
+arithmetic_explicit_small,pythia,large,100000,42,What is the product of 14 and 0?,"Question: What is the product of 14 and 0? 
+Answer: 14 is 14 and 0 is 0.
+",True
+arithmetic_explicit_small,pythia,large,100000,42,What is 8 * 16?,"Question: What is 8 * 16? 
+Answer: 8 * 16 = 128
+",True
+arithmetic_explicit_small,pythia,large,100000,42,What is the product of 16 and 3?,"Question: What is the product of 16 and 3? 
+Answer: 16 * 3 = 48
+",True
+arithmetic_explicit_small,pythia,large,100000,42,What is the product of 9 and 20?,"Question: What is the product of 9 and 20? 
+Answer: 9 × 20 = 180
+",True
+arithmetic_explicit_small,pythia,large,100000,42,What is 19 * 6?,"Question: What is 19 * 6? 
+Answer: 19 * 6 = 114
+",True
+arithmetic_explicit_small,pythia,large,100000,42,What is the product of 11 and 5?,"Question: What is the product of 11 and 5? 
+Answer: 11 × 5 = 55
+",True
+arithmetic_explicit_small,pythia,large,100000,42,What is the product of 16 and 0?,"Question: What is the product of 16 and 0? 
+Answer: 16 = 0
+",True
+arithmetic_explicit_small,pythia,large,100000,42,What is 10 * 15?,"Question: What is 10 * 15? 
+Answer: 10 * 15 = 150
+",True
+arithmetic_explicit_small,pythia,large,100000,42,Multiply 3 by 11.,"Question: Multiply 3 by 11. 
+Answer: 3 x 11 = 33
+",True
+arithmetic_explicit_small,pythia,large,100000,42,What is 7 / 1?,"Question: What is 7 / 1? 
+Answer: 7 is the number of times the number 1 appears in the sequence.
+",False
+arithmetic_explicit_small,pythia,large,100000,42,What is 18 / 2?,"Question: What is 18 / 2? 
+Answer: 18 is the number of times the number 2 is repeated.
+",False
+arithmetic_explicit_small,pythia,large,100000,42,How many times does 2 fit into 15?,"Question: How many times does 2 fit into 15? 
+Answer: 2 times.
+",False
+arithmetic_explicit_small,pythia,large,100000,42,How many times does 4 fit into 4?,"Question: How many times does 4 fit into 4? 
+Answer: 4 times.
+",False
+arithmetic_explicit_small,pythia,large,100000,42,What is 15 / 17?,"Question: What is 15 / 17? 
+Answer: 15 is the number of digits in the decimal part of the number. 17 is the number of digits",False
+arithmetic_explicit_small,pythia,large,100000,42,How many times does 16 fit into 8?,"Question: How many times does 16 fit into 8? 
+Answer: 16 times.
+",False
+arithmetic_explicit_small,pythia,large,100000,42,How many times does 6 fit into 13?,"Question: How many times does 6 fit into 13? 
+Answer: 6 times 13 = 72
+",False
+arithmetic_explicit_small,pythia,large,100000,42,Divide 6 by 9.,"Question: Divide 6 by 9. 
+Answer: 6/9 = 0.75
+",False
+arithmetic_explicit_small,pythia,large,100000,42,Divide 20 by 11.,"Question: Divide 20 by 11. 
+Answer:
+",False
+arithmetic_explicit_small,pythia,large,100000,42,What is 16 / 14?,"Question: What is 16 / 14? 
+Answer: 16 is the number of times the number of digits in the number is divisible by 14.
+",False
+arithmetic_explicit_small,pythia,large,100000,42,What is 7 / 7?,"Question: What is 7 / 7? 
+Answer: 7 is the number of times the number 7 is repeated.
+",False
+arithmetic_explicit_small,pythia,large,100000,42,How many times does 19 fit into 10?,"Question: How many times does 19 fit into 10? 
+Answer: 19 = 10 x 10
+",False
+arithmetic_explicit_small,pythia,large,100000,42,What is 7 / 18?,"Question: What is 7 / 18? 
+Answer: 7 / 18 = 3.14
+",False
+arithmetic_explicit_small,pythia,large,100000,42,How many times does 2 fit into 0?,"Question: How many times does 2 fit into 0? 
+Answer: 2 times.
+",False
+arithmetic_explicit_small,pythia,large,100000,42,What is 20 / 1?,"Question: What is 20 / 1? 
+Answer: 20 / 1 = 20
+",False
+arithmetic_explicit_small,pythia,large,100000,42,Divide 2 by 1.,"Question: Divide 2 by 1. 
+Answer: 2/1 = 1/2
+",False
+arithmetic_explicit_small,pythia,large,100000,42,What is 2 / 16?,"Question: What is 2 / 16? 
+Answer: 2 / 16 = 0.5
+",False
+arithmetic_explicit_small,pythia,large,100000,42,What is 8 / 15?,"Question: What is 8 / 15? 
+Answer: 8 / 15 = 0.5
+",False
+arithmetic_explicit_small,pythia,large,100000,42,How many times does 4 fit into 17?,"Question: How many times does 4 fit into 17? 
+Answer: 4 times.
+",False
+arithmetic_explicit_small,pythia,large,100000,42,Divide 18 by 18.,"Question: Divide 18 by 18. 
+Answer: 1/18
+",False
