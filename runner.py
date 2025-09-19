@@ -120,7 +120,7 @@ def run_lm_experiment_datasets(
 
                     # Load model/tokenizer
                     tokenizer, model, device = build_lm_model(model_name, phase=size, snapshot_step=f"step{step}" if step else None)
-                    
+                    model.config.pad_token_id = tokenizer.pad_token_id
                     for question, answer in questions:
                         prompt = prompt_template.format(question=question)
                         inputs = tokenizer(prompt, return_tensors="pt").to(device)
@@ -141,7 +141,6 @@ def run_lm_experiment_datasets(
                             "snapshot": step,
                             "seed": seed,
                             "question": question,
-                            "correctAnswer:" : answer,
                             "prediction": pred_text,
                             "correct": correct
                         })

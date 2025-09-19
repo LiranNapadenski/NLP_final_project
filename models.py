@@ -2,11 +2,7 @@ import torch
 from transformers import AutoTokenizer, AutoModelForCausalLM
 
 # Public snapshots for Pythia
-PUBLIC_CHECKPOINTS = {
-    "pythia-70m": ["step1000", "step10000", "step50000", "step100000", "step143000"],
-    "pythia-160m": ["step1000", "step10000", "step50000", "step100000"],
-    "pythia-1.4B": ["step1000", "step10000", "step50000", "step100000"],  # large model snapshots
-}
+PYTHIA_PUBLIC_CHECKPOINTS = ["step" + str(1000 * num) for num in range(1, 144)]
 
 def build_lm_model(name: str, phase: str = "small", snapshot_step: str = None):
     """
@@ -47,13 +43,14 @@ def build_lm_model(name: str, phase: str = "small", snapshot_step: str = None):
     elif name == "pythia":
         if phase == "small":
             base_name = "EleutherAI/pythia-70m-deduped"
-            checkpoint_list = PUBLIC_CHECKPOINTS["pythia-70m"]
+            checkpoint_list = PYTHIA_PUBLIC_CHECKPOINTS
         elif phase == "medium":
-            base_name = "EleutherAI/pythia-160m-deduped"
-            checkpoint_list = PUBLIC_CHECKPOINTS["pythia-160m"]
-        else:  # large
             base_name = "EleutherAI/pythia-1.4B-deduped"
-            checkpoint_list = PUBLIC_CHECKPOINTS["pythia-1.4B"]
+            checkpoint_list = PYTHIA_PUBLIC_CHECKPOINTS
+        else:  # large
+            base_name = "EleutherAI/pythia-6.9B-deduped"
+            checkpoint_list = PYTHIA_PUBLIC_CHECKPOINTS
+            
 
         
         if snapshot_step:
