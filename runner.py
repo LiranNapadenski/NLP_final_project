@@ -6,6 +6,7 @@ from itertools import product
 from data import dataset_factory, Prompt
 from models import build_lm_model
 from utils import set_seed
+import re 
 
 try:
     import wandb
@@ -124,14 +125,22 @@ def run_lm_experiment_datasets(
                     tokenizer, model, device, model_full_name = build_lm_model(model_name, phase=size, snapshot_step=f"step{step}" if step else None)
                     model.config.pad_token_id = tokenizer.pad_token_id
                     for prompt in prompts:
-                        inputs = tokenizer(prompt.text, return_tensors="pt").to(device)
                         
                         with torch.no_grad():
+                            inputs = tokenizer(prompt.text, return_tensors="pt").to(device)
                             outputs = model.generate(**inputs, max_new_tokens=max_tokens, do_sample=False, stop_strings="\n", tokenizer=tokenizer)
                         pred_text = tokenizer.decode(outputs[0], skip_special_tokens=True)
 
                         # remove prompt from generated text
-                        pred_text = pred_text.split(prompt.text)[1]
+                        # Keep the raw output
+                        raw_prediction = pred_text
+
+                        # Extract only what comes after the final "Answer:"
+                        match = re.search(r"Answer:\s*(.*)", pred_text, re.DOTALL)
+                        if match:
+                            answer_only = match.group(1).strip()
+                        else:
+                            answer_only = raw_prediction.strip()
                         
                         # Simple exact match evaluation
                         correct = None
@@ -139,22 +148,27 @@ def run_lm_experiment_datasets(
                             correct = str(prompt.answer) in pred_text or prompt.answer_str in pred_text
 
                         row = {
-                            "dataset": dataset_name,
-                            "model": model_name,
-                            "size": size,
-                            "full model name": model_full_name,
-                            "snapshot": step,
-                            "seed": seed,
-                            "prediction": pred_text,
-                            "correct": correct
-                        }
+                        "dataset": dataset_name,
+                        "model": model_name,
+                        "size": size,
+                        "full model name": model_full_name,
+                        "snapshot": step,
+                        "seed": seed,
+                        "raw_prediction": raw_prediction,
+                        "answer_only": answer_only,
+                        "correct": correct
+                    }
                         row.update(vars(prompt))
 
                         writer.writerow(row)
                         f.flush()
+                        del inputs, outputs
 
                     if wbr is not None:
                         wbr.finish()
+                    
+                    del model, tokenizer, 
+                    torch.cuda.empty_cache() 
 
 
 def main():
