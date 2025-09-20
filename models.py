@@ -42,7 +42,7 @@ def build_lm_model(name: str, phase: str = "small", snapshot_step: str = None):
             model_name = "facebook/opt-6.7b"
     elif name == "pythia":
         if phase == "small":
-            base_name = "EleutherAI/pythia-70m-deduped"
+            base_name = "EleutherAI/pythia-410m-deduped"
             checkpoint_list = PYTHIA_PUBLIC_CHECKPOINTS
         elif phase == "medium":
             base_name = "EleutherAI/pythia-1.4B-deduped"
@@ -50,7 +50,7 @@ def build_lm_model(name: str, phase: str = "small", snapshot_step: str = None):
         else:  # large
             base_name = "EleutherAI/pythia-6.9B-deduped"
             checkpoint_list = PYTHIA_PUBLIC_CHECKPOINTS
-            
+
 
         
         if snapshot_step:
@@ -76,4 +76,4 @@ def build_lm_model(name: str, phase: str = "small", snapshot_step: str = None):
     model.to(device)
     model.eval()
     
-    return tokenizer, model, device
+    return tokenizer, model, device, base_name

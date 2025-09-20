@@ -54,7 +54,7 @@ class PromptTemplate:
         self.subtraction_verbs = subtraction_verbs
         self.items = items
 
-    def generate_all_prompts(self, max_number):
+    def generate_all_prompts(self, max_number, number_format):
         prompts = []
         if len(self.items) == 0:
             self.items = [""]
@@ -62,7 +62,6 @@ class PromptTemplate:
         for operation, verbs in [(PromptOperators.PLUS, self.addition_verbs), (PromptOperators.MINUS, self.subtraction_verbs)]:
             for verb in verbs:
                 for num1 in range(1, max_number):
-                    number_format = NumberFormats.TEXTUAL  # TODO - make configurable
                     if num1 > NUM_TO_TEXT_MAX:
                         number_format = NumberFormats.NUMERIC
                     for item in self.items:
@@ -87,7 +86,7 @@ class PromptTemplate:
 
         return prompts
 
-    def generate_n_prompts(self, num_of_prompts, operation, max_number):
+    def generate_n_prompts(self, num_of_prompts, operation, max_number, number_format):
         prompts = []
         verbs = self.addition_verbs if operation == PromptOperators.PLUS else self.subtraction_verbs
         if len(self.items) == 0:
@@ -97,7 +96,6 @@ class PromptTemplate:
             num1 = random.randint(1, max_number)
             num2 = random.randint(1, num1)
 
-            number_format = NumberFormats.TEXTUAL  # TODO - make configurable
             if num1 > NUM_TO_TEXT_MAX:
                 number_format = NumberFormats.NUMERIC
 
@@ -158,15 +156,16 @@ def build_dataset(dataset_type, number_range_key, n_per_combo=20, generate_all_p
 
         prompts = []
         max_num = MAX_NUMBERS[number_range_key]
+        number_format = NumberFormats.NUMERIC if dataset_type == DatasetTypes.EXPLICIT else NumberFormats.TEXTUAL
 
         if generate_all_prompts:
             for template in templates:
-                prompts += template.generate_all_prompts(max_num)
+                prompts += template.generate_all_prompts(max_num, number_format)
         else:
             for op in [PromptOperators.PLUS, PromptOperators.MINUS]:
                 for template in templates:
                     # TODO - generate n prompts per verb and item!
-                    prompts += template.generate_n_prompts(n_per_combo, op, max_num)
+                    prompts += template.generate_n_prompts(n_per_combo, op, max_num, number_format)
 
         prompt_id = 0
         for p in prompts:

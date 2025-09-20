@@ -86,7 +86,7 @@ def run_lm_experiment_datasets(
         blank_prompt = Prompt("","","",0,0,"","","")
         prompt_fieldnames = list(vars(blank_prompt).keys())
         fieldnames = [
-            "dataset", "model", "size", "snapshot", "seed", "prediction", "correct"
+            "dataset", "model", "size", "full model name", "snapshot", "seed", "prediction", "correct"
         ] + prompt_fieldnames
 
         writer = csv.DictWriter(f, fieldnames=fieldnames)
@@ -121,7 +121,7 @@ def run_lm_experiment_datasets(
                     )
 
                     # Load model/tokenizer
-                    tokenizer, model, device = build_lm_model(model_name, phase=size, snapshot_step=f"step{step}" if step else None)
+                    tokenizer, model, device, model_full_name = build_lm_model(model_name, phase=size, snapshot_step=f"step{step}" if step else None)
                     model.config.pad_token_id = tokenizer.pad_token_id
                     for prompt in prompts:
                         inputs = tokenizer(prompt.text, return_tensors="pt").to(device)
@@ -129,6 +129,9 @@ def run_lm_experiment_datasets(
                         with torch.no_grad():
                             outputs = model.generate(**inputs, max_new_tokens=max_tokens, do_sample=False, stop_strings="\n", tokenizer=tokenizer)
                         pred_text = tokenizer.decode(outputs[0], skip_special_tokens=True)
+
+                        # remove prompt from generated text
+                        pred_text = pred_text.split(prompt.text)[1]
                         
                         # Simple exact match evaluation
                         correct = None
@@ -139,6 +142,7 @@ def run_lm_experiment_datasets(
                             "dataset": dataset_name,
                             "model": model_name,
                             "size": size,
+                            "full model name": model_full_name,
                             "snapshot": step,
                             "seed": seed,
                             "prediction": pred_text,
