@@ -41,7 +41,7 @@ MAX_NUMBERS = {
     NumberRanges.LARGE: 150,
 }
 
-class PromtOperators:
+class PromptOperators:
     PLUS = "+"
     MINUS = "-"
 
@@ -59,7 +59,7 @@ class PromptTemplate:
         if len(self.items) == 0:
             self.items = [""]
 
-        for operation, verbs in [(PromtOperators.PLUS, self.addition_verbs), (PromtOperators.MINUS, self.subtraction_verbs)]:
+        for operation, verbs in [(PromptOperators.PLUS, self.addition_verbs), (PromptOperators.MINUS, self.subtraction_verbs)]:
             for verb in verbs:
                 for num1 in range(1, max_number):
                     number_format = NumberFormats.TEXTUAL  # TODO - make configurable
@@ -89,7 +89,7 @@ class PromptTemplate:
 
     def generate_n_prompts(self, num_of_prompts, operation, max_number):
         prompts = []
-        verbs = self.addition_verbs if operation == PromtOperators.PLUS else self.subtraction_verbs
+        verbs = self.addition_verbs if operation == PromptOperators.PLUS else self.subtraction_verbs
         if len(self.items) == 0:
             self.items = [" "]
 
@@ -163,7 +163,7 @@ def build_dataset(dataset_type, number_range_key, n_per_combo=20, generate_all_p
             for template in templates:
                 prompts += template.generate_all_prompts(max_num)
         else:
-            for op in [PromtOperators.PLUS, PromtOperators.MINUS]:
+            for op in [PromptOperators.PLUS, PromptOperators.MINUS]:
                 for template in templates:
                     # TODO - generate n prompts per verb and item!
                     prompts += template.generate_n_prompts(n_per_combo, op, max_num)

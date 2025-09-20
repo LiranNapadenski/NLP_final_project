@@ -3,9 +3,10 @@ import os
 import torch
 import csv
 from itertools import product
-from data import dataset_factory
+from data import dataset_factory, Prompt
 from models import build_lm_model
 from utils import set_seed
+
 try:
     import wandb
 except ImportError:
@@ -17,22 +18,22 @@ def parse_args() -> argparse.Namespace:
     # LM experiment options
     p.add_argument(
         "--models", nargs="+", default=["gpt2", "neo", "opt", "pythia"], 
-        help="NLP models to include"
+        help="Language model to run"
     )
 
     p.add_argument(
         "--seeds", nargs="+", type=int, default=[42], 
-        help="NLP models to include"
+        help="Seeds for random generators"
     )
 
     p.add_argument(
-        "--datasets", nargs="+", default=["arithmetic_explicit_small", "arithmetic_implicit_medium", "arithmetic_large_all_ops", "arithmetic_negatives"],
-        help="choose the datasets to run the expirement on"
+        "--datasets", nargs="+",
+        help="The datasets for the experiment"
     )
 
     p.add_argument(
         "--sizes", nargs="+", default=["small", "medium", "large"],
-        help="Sizes of models to include"
+        help="Size of the language model"
     )
 
     p.add_argument(
@@ -82,9 +83,13 @@ def run_lm_experiment_datasets(
     header_written = os.path.exists(out_csv)
 
     with open(out_csv, "a", newline="") as f:
-        writer = csv.DictWriter(f, fieldnames=[
-            "dataset", "model", "size", "snapshot", "seed", "question", "prediction", "correct"
-        ])
+        blank_prompt = Prompt("","","",0,0,"","","")
+        prompt_fieldnames = list(vars(blank_prompt).keys())
+        fieldnames = [
+            "dataset", "model", "size", "snapshot", "seed", "prediction", "correct"
+        ] + prompt_fieldnames
+
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
         if not header_written:
             writer.writeheader()
 
@@ -128,7 +133,7 @@ def run_lm_experiment_datasets(
                         # Simple exact match evaluation
                         correct = None
                         if exact_match:
-                            correct = prompt.answer in pred_text or prompt.answer_str in pred_text
+                            correct = str(prompt.answer) in pred_text or prompt.answer_str in pred_text
 
                         row = {
                             "dataset": dataset_name,
