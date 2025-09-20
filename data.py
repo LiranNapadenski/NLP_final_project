@@ -1,109 +1,202 @@
 import random
-import pandas as pd
-import re
+import yaml
 
-
-#add more databasess , make this one better , and add diffrent kinds
-#add all of them to the factory
-random.seed(42)
-
-# Templates for arithmetic tasks
-TEMPLATES = {
-    "addition_explicit": [
-        "What is {a} + {b}?", "Calculate {a} plus {b}.", "Add {a} and {b} together."
-    ],
-    "subtraction_explicit": [
-        "What is {a} - {b}?", "Subtract {b} from {a}.", "Calculate the difference between {a} and {b}."
-    ],
-    "multiplication_explicit": [
-        "What is {a} * {b}?", "Multiply {a} by {b}.", "What is the product of {a} and {b}?"
-    ],
-    "division_explicit": [
-        "What is {a} / {b}?", "Divide {a} by {b}.", "How many times does {b} fit into {a}?"
-    ],
-    "addition_implicit": [
-        "I had {a} apples, then I got {b} more. How many apples now?",
-        "There were {a} kids at the park, {b} more arrived. How many kids in total?"
-    ],
-    "subtraction_implicit": [
-        "I had {a} candies, ate {b}. How many left?",
-        "There were {a} players, {b} left. How many remain?"
-    ]
+NUM_TO_TEXT = {
+    0: "zero",
+    1: "one",
+    2: "two",
+    3: "three",
+    4: "four",
+    5: "five",
+    6: "six",
+    7: "seven",
+    8: "eight",
+    9: "nine",
+    10: "ten",
+    11: "eleven",
+    12: "twelve",
+    13: "thirteen",
+    14: "fourteen",
+    15: "fifteen"
 }
+NUM_TO_TEXT_MAX = 15
+
+class NumberFormats:
+    TEXTUAL = "textual"
+    NUMERIC = "numeric"
+
+class DatasetTypes:
+    IMPLICIT = "implicit"
+    EXPLICIT = "explicit"
+
+class NumberRanges:
+    SMALL = "small"
+    MEDIUM = "medium"
+    LARGE = "large"
 
 # Number ranges
-RANGES = {
-    "small": list(range(0, 21)),
-    "medium": list(range(0, 101)),
-    "large": list(range(0, 1001)),
-    "negatives": list(range(-50, 51))
+MAX_NUMBERS = {
+    NumberRanges.SMALL: 10,
+    NumberRanges.MEDIUM: 30,
+    NumberRanges.LARGE: 150,
 }
 
-def compute_answer(op, a, b):
-    if op.startswith("addition"):
-        return a + b
-    if op.startswith("subtraction"):
-        return a - b
-    if op.startswith("multiplication"):
-        return a * b
-    if op.startswith("division"):
-        if b == 0:
-            return None
-        return round(a / b, 4)
-    raise ValueError(f"Unknown operation {op}")
+class PromtOperators:
+    PLUS = "+"
+    MINUS = "-"
+
+class PromptTemplate:
+    question_format = "Question: {question_text} \nAnswer:"
+    def __init__(self, id, template, addition_verbs, subtraction_verbs, items):
+        self.id = id
+        self.template = template
+        self.addition_verbs = addition_verbs
+        self.subtraction_verbs = subtraction_verbs
+        self.items = items
+
+    def generate_all_prompts(self, max_number):
+        prompts = []
+        if len(self.items) == 0:
+            self.items = [""]
+
+        for operation, verbs in [(PromtOperators.PLUS, self.addition_verbs), (PromtOperators.MINUS, self.subtraction_verbs)]:
+            for verb in verbs:
+                for num1 in range(1, max_number):
+                    number_format = NumberFormats.TEXTUAL  # TODO - make configurable
+                    if num1 > NUM_TO_TEXT_MAX:
+                        number_format = NumberFormats.NUMERIC
+                    for item in self.items:
+                        item1 = item if num1 != 1 else item[:-1]
+                        for num2 in range(1, num1):
+                            item2 = item if num2 > 1 else item[:-1]
+                            num1_str = NUM_TO_TEXT[num1] if num1 <= NUM_TO_TEXT_MAX else str(num1)
+                            num2_str = NUM_TO_TEXT[num2] if num2 <= NUM_TO_TEXT_MAX else str(num2)
+
+                            question_text = self.template.format(num1=num1_str,
+                                                                 num2=num2_str,
+                                                                 item1=item1,
+                                                                 item2=item2,
+                                                                 verb=verb)
+
+                            prompt_text = self.question_format.format(question_text=question_text)
+
+                            prompts.append(Prompt(template_id=self.id,
+                                                  text=prompt_text,
+                                                  operator=operation, num1=num1, num2=num2,
+                                                  items=item, verb=verb, number_format=number_format))
+
+        return prompts
+
+    def generate_n_prompts(self, num_of_prompts, operation, max_number):
+        prompts = []
+        verbs = self.addition_verbs if operation == PromtOperators.PLUS else self.subtraction_verbs
+        if len(self.items) == 0:
+            self.items = [" "]
+
+        for _ in range(num_of_prompts):
+            num1 = random.randint(1, max_number)
+            num2 = random.randint(1, num1)
+
+            number_format = NumberFormats.TEXTUAL  # TODO - make configurable
+            if num1 > NUM_TO_TEXT_MAX:
+                number_format = NumberFormats.NUMERIC
+
+            verb = random.choice(verbs)
+            item = random.choice(self.items)
+            item1 = item if num1 > 1 else item[:-1]
+            item2 = item
+            num1_str = NUM_TO_TEXT[num1] if num1 <= NUM_TO_TEXT_MAX else str(num1)
+            num2_str = NUM_TO_TEXT[num2] if num2 <= NUM_TO_TEXT_MAX else str(num2)
+
+            question_text = self.template.format(num1=num1_str,
+                                                 num2=num2_str,
+                                                 item1=item1,
+                                                 item2=item2,
+                                                 verb=verb)
+
+            prompt_text = self.question_format.format(question_text=question_text)
+
+            prompts.append(Prompt(template_id=self.id,
+                                  text=prompt_text,
+                                  operator=operation, num1=num1, num2=num2,
+                                  items=item, verb=verb, number_format=number_format))
+
+        return prompts
+
+
+class Prompt:
+    def __init__(self, template_id, text, operator, num1, num2, items, verb, number_format):
+        self.template_id = template_id
+        self.text = text
+        self.operator = operator
+        self.num1 = num1
+        self.num2 = num2
+        self.items = items
+        self.verb = verb
+        self.answer = num1 + num2 if operator == '+' else num1 - num2
+        self.answer_str = NUM_TO_TEXT[self.answer] if self.answer <= NUM_TO_TEXT_MAX else ""
+        self.number_format = number_format
+        self.id = 0 # To be set by dataset builder
+
 
 # Core dataset builder
-def build_dataset(templates_keys, number_range_key, n_per_combo=20):
+def build_dataset(dataset_type, number_range_key, n_per_combo=20, generate_all_prompts=False):
     """
-    Build a dataset from given template keys and number range.
+    Generates n_per_combo prompts per template per operator (+/-), total of 2 * n_per_combo * (number of templates in yml)
+    :param dataset_type: "implicit" or "explicit" phrasing of the question
+    :param number_range_key: "small" or "medium" or "large", the scale of the numbers in the questions
+    :param n_per_combo: the number of prompts to generate for each question template
+    :generate_all_prompts: whether to generate all possible prompts in each template
     """
-    rows = []
-    idx = 0
-    for op_key in templates_keys:
-        templates = TEMPLATES[op_key]
-        base_op = re.split("_", op_key)[0]
-        template_type = "explicit" if "explicit" in op_key else "implicit"
-        pool = RANGES[number_range_key]
-        for _ in range(n_per_combo):
-            a, b = random.choice(pool), random.choice(pool)
-            if base_op == "division" and b == 0:
-                b = random.choice([x for x in pool if x != 0])
-            text = random.choice(templates).format(a=a, b=b)
-            ans = compute_answer(op_key, a, b)
-            if ans is None:
-                continue
-            rows.append({
-                "id": idx,
-                "template_type": template_type,
-                "operation": base_op,
-                "difficulty": number_range_key,
-                "a": a,
-                "b": b,
-                "text": text,
-                "answer": ans,
-                "answer_str": str(ans)
-            })
-            idx += 1
-    return pd.DataFrame(rows)
+    templates_yml_path = dataset_type + "_dataset.yml"
+
+    with open(templates_yml_path, "r") as f:
+
+        # Load YAML into custom objects
+        yml_templates = yaml.safe_load(f)
+        templates = [PromptTemplate(**yml_template) for yml_template in yml_templates]
+
+        prompts = []
+        max_num = MAX_NUMBERS[number_range_key]
+
+        if generate_all_prompts:
+            for template in templates:
+                prompts += template.generate_all_prompts(max_num)
+        else:
+            for op in [PromtOperators.PLUS, PromtOperators.MINUS]:
+                for template in templates:
+                    # TODO - generate n prompts per verb and item!
+                    prompts += template.generate_n_prompts(n_per_combo, op, max_num)
+
+        prompt_id = 0
+        for p in prompts:
+            p.id = prompt_id
+            prompt_id += 1
+
+        return prompts
+
 
 # Factory function
-def dataset_factory(dataset_name: str, n_per_combo=20):
+def dataset_factory(dataset_name: str, n_per_combo=20, generate_all_prompts=False):
     """
     Generate different datasets based on dataset_name.
     """
-    if dataset_name == "arithmetic_explicit_small":
-        templates_keys = ["addition_explicit", "subtraction_explicit", "multiplication_explicit", "division_explicit"]
-        number_range_key = "small"
-    elif dataset_name == "arithmetic_implicit_medium":
-        templates_keys = ["addition_implicit", "subtraction_implicit"]
-        number_range_key = "medium"
-    elif dataset_name == "arithmetic_large_all_ops":
-        templates_keys = ["addition_explicit", "subtraction_explicit", "multiplication_explicit", "division_explicit"]
-        number_range_key = "large"
-    elif dataset_name == "arithmetic_negatives":
-        templates_keys = ["addition_explicit", "subtraction_explicit"]
-        number_range_key = "negatives"
+
+    dataset_type = dataset_name.split("_")[0]  # explicit or implicit
+    number_range_key = dataset_name.split("_")[1]  # small medium or large
+
+    if (dataset_type in [DatasetTypes.IMPLICIT, DatasetTypes.EXPLICIT] and
+            number_range_key in [NumberRanges.SMALL, NumberRanges.MEDIUM, NumberRanges.LARGE]):
+
+        return build_dataset(dataset_type, number_range_key, n_per_combo, generate_all_prompts)
+
     else:
         raise ValueError(f"Unknown dataset name {dataset_name}")
-    
-    return build_dataset(templates_keys, number_range_key, n_per_combo)
+
+
+if __name__ == "__main__":
+    # Test
+    prompts = dataset_factory("implicit_medium", n_per_combo=20, generate_all_prompts=True)
+    for p in prompts:
+        print(vars(p))
+    print(len(prompts))

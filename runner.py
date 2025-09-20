@@ -71,7 +71,6 @@ def run_lm_experiment_datasets(
     out_csv: str,
     max_tokens: int,
     use_cuda: bool,
-    prompt_template: str,
     exact_match: bool,#bad improve plaese!
     wandb_args: dict,
     n_per_combo: int = 20
@@ -90,13 +89,12 @@ def run_lm_experiment_datasets(
             writer.writeheader()
 
         for dataset_name in dataset_names:
-            # Build the dataset using your factory
-            df = dataset_factory(dataset_name, n_per_combo=n_per_combo)
-            questions = list(zip(df['text'].tolist(), df['answer_str'].tolist()))
-
             for seed in seeds:
                 set_seed(seed)
-                
+
+                # Build the dataset using your factory
+                prompts = dataset_factory(dataset_name, n_per_combo=n_per_combo)
+
                 for model_name, size, step in product(models, sizes, steps):
                     run_cfg = dict(
                         dataset=dataset_name,
@@ -104,8 +102,7 @@ def run_lm_experiment_datasets(
                         size=size,
                         snapshot=step,
                         seed=seed,
-                        max_tokens=max_tokens,
-                        prompt_template=prompt_template
+                        max_tokens=max_tokens
                     )
                     run_name = f"{dataset_name}-{model_name}-{size}-step{step}-s{seed}"
                     wbr = wandb_init_or_none(
@@ -121,9 +118,8 @@ def run_lm_experiment_datasets(
                     # Load model/tokenizer
                     tokenizer, model, device = build_lm_model(model_name, phase=size, snapshot_step=f"step{step}" if step else None)
                     model.config.pad_token_id = tokenizer.pad_token_id
-                    for question, answer in questions:
-                        prompt = prompt_template.format(question=question)
-                        inputs = tokenizer(prompt, return_tensors="pt").to(device)
+                    for prompt in prompts:
+                        inputs = tokenizer(prompt.text, return_tensors="pt").to(device)
                         
                         with torch.no_grad():
                             outputs = model.generate(**inputs, max_new_tokens=max_tokens, do_sample=False, stop_strings="\n", tokenizer=tokenizer)
@@ -132,18 +128,20 @@ def run_lm_experiment_datasets(
                         # Simple exact match evaluation
                         correct = None
                         if exact_match:
-                            correct = answer.strip() in pred_text
+                            correct = prompt.answer in pred_text or prompt.answer_str in pred_text
 
-                        writer.writerow({
+                        row = {
                             "dataset": dataset_name,
                             "model": model_name,
                             "size": size,
                             "snapshot": step,
                             "seed": seed,
-                            "question": question,
                             "prediction": pred_text,
                             "correct": correct
-                        })
+                        }
+                        row.update(vars(prompt))
+
+                        writer.writerow(row)
                         f.flush()
 
                     if wbr is not None:
@@ -173,9 +171,6 @@ def main():
     # Maximum number of tokens to generate per question
     max_tokens = 20
 
-    # Prompt template for LM evaluation
-    prompt_template = "Question: {question} \nAnswer:"
-
     # Whether to use exact match evaluation
     exact_match = True
 
@@ -189,12 +184,10 @@ def main():
         out_csv=args.out,
         max_tokens=max_tokens,
         use_cuda=True,
-        prompt_template=prompt_template,
         exact_match=exact_match,
         wandb_args=wandb_args,
         n_per_combo=20  # Number of examples per combination in each dataset
     )
-
 
 if __name__ == "__main__":
     main()

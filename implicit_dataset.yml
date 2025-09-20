@@ -1,0 +1,35 @@
+- id: 1
+  template: "Danny had {num1} {item1}, then he {verb} {num2} {item2}. How many {item1} danny have now?"
+  items: ["apples", "oranges", "candy bars"]
+  addition_verbs: ["found", "received", "got"]
+  subtraction_verbs: ["ate", "lost"]
+- id: 2
+  template: "At first there are {num1} {item1} in the parking lot. How many {item2} are there after {num2} {item1} {verb}"
+  items: ["cars", "trucks", "vehicles", "motorcycles"]
+  addition_verbs: ["arrive"]
+  subtraction_verbs: ["leave", "drive away", "go away"]
+- id: 3
+  template: "You started the journey with {num1} {item1}. You {verb} {num2} {item2} during your quest. How much {item1} remains?"
+  items: ["gold coins", "silver coins", "dollar bills"]
+  addition_verbs: ["earned", "acquired", "retrieved"]
+  subtraction_verbs: ["spent", "gave away", "used"]
+- id: 4
+  template: "I got to school with {num1} {item1}. I {verb} {num2} {item2} before lunch. How many do I have?"
+  items: ["pencils", "pens", "sharpies"]
+  addition_verbs: ["bought"]
+  subtraction_verbs: ["used up", "broke"]
+- id: 5
+  template: "In the company, {num1} {item1} were employed before {num2} {item2} were {verb}. How many {item1} are employed now?"
+  items: ["workers", "employees", "consultants"]
+  addition_verbs: ["hired"]
+  subtraction_verbs: ["fired"]
+- id: 6
+  template: "In the supermarket there are {num1} {item1}, after {num2} {item2} {verb} how many {item1} are there?"
+  items: ["milk crates", "yogurt boxes", "bread packages"]
+  addition_verbs: ["arrived from the factory"]
+  subtraction_verbs: ["were sold", "got spoiled"]
+- id: 7
+  template: "There were {num1} {item1} at the park, but a few minutes later {num2} {item2} {verb}. How many {item1} are in the park in total?"
+  items: ["kids", "boys", "girls", "friends"]
+  addition_verbs: ["joined", "came along"]
+  subtraction_verbs: ["went home", "were picked up by their parents"]
