@@ -100,6 +100,7 @@ def run_lm_experiment_datasets(
 
                 # Build the dataset using your factory
                 prompts = dataset_factory(dataset_name, n_per_combo=n_per_combo)
+                print(f"Created {len(prompts)} prompts for {dataset_name}")
 
                 for model_name, size, step in product(models, sizes, steps):
                     run_cfg = dict(
@@ -145,7 +146,7 @@ def run_lm_experiment_datasets(
                         # Simple exact match evaluation
                         correct = None
                         if exact_match:
-                            correct = str(prompt.answer) in pred_text or prompt.answer_str in pred_text
+                            correct = str(prompt.answer) in answer_only or (len(prompt.answer_str) > 0 and prompt.answer_str in answer_only)
 
                         row = {
                         "dataset": dataset_name,
