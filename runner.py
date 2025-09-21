@@ -87,7 +87,7 @@ def run_lm_experiment_datasets(
         blank_prompt = Prompt("","","",0,0,"","","")
         prompt_fieldnames = list(vars(blank_prompt).keys())
         fieldnames = [
-            "dataset", "model", "size", "full model name", "snapshot", "seed", "prediction", "correct"
+            "dataset", "model", "size", "full model name", "snapshot", "seed", "raw_prediction", "answer_only", "correct"
         ] + prompt_fieldnames
 
         writer = csv.DictWriter(f, fieldnames=fieldnames)
