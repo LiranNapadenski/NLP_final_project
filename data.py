@@ -1,5 +1,6 @@
 import random
 import yaml
+import os
 
 NUM_TO_TEXT = {
     0: "zero",
@@ -170,7 +171,9 @@ def build_dataset(dataset_type, number_range_key, n_per_combo=20, generate_all_p
     :generate_all_prompts: whether to generate all possible prompts in each template
     """
     templates_yml_path = dataset_type + "_dataset.yml"
-
+    script_dir = os.path.dirname(os.path.realpath(__file__)) 
+    templates_yml_path = os.path.join(script_dir, templates_yml_path)
+    
     with open(templates_yml_path, "r") as f:
 
         # Load YAML into custom objects
