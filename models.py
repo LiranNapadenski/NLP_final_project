@@ -1,8 +1,9 @@
 import torch
 from transformers import AutoTokenizer, AutoModelForCausalLM
 
-# Public snapshots for Pythia
+# Public snapshots for Pythia (1k → 143k steps)
 PYTHIA_PUBLIC_CHECKPOINTS = ["step" + str(1000 * num) for num in range(1, 144)]
+
 
 def build_lm_model(name: str, phase: str = "small", snapshot_step: str = None):
     """
@@ -10,22 +11,23 @@ def build_lm_model(name: str, phase: str = "small", snapshot_step: str = None):
     
     Args:
         name: Model family ("gpt2", "neo", "opt", "pythia")
-        phase: "small", "medium" or "large" (used if snapshot_step is None)
-        snapshot_step: optional Hugging Face checkpoint step (e.g., "step1000")
+        phase: "small", "medium" or "large"
+        snapshot_step: Optional Hugging Face checkpoint step (e.g., "step1000") for Pythia.
     
     Returns:
-        tokenizer, model, device
+        tokenizer, model, device, model_name
     """
     name = name.lower()
+    revision = None  # default (no snapshot revision)
     
-    # Determine model_name (Hub path)
     if name == "gpt2":
         if phase == "small":
             model_name = "gpt2"
         elif phase == "medium":
             model_name = "gpt2-medium"
         else:  # large
-            model_name = "gpt2-large"
+            model_name = "gpt2-medium"
+
     elif name == "neo":
         if phase == "small":
             model_name = "EleutherAI/gpt-neo-125M"
@@ -33,47 +35,49 @@ def build_lm_model(name: str, phase: str = "small", snapshot_step: str = None):
             model_name = "EleutherAI/gpt-neo-1.3B"
         else:  # large
             model_name = "EleutherAI/gpt-neo-2.7B"
+
     elif name == "opt":
         if phase == "small":
             model_name = "facebook/opt-125m"
         elif phase == "medium":
             model_name = "facebook/opt-1.3b"
         else:  # large
-            model_name = "facebook/opt-6.7b"
+            model_name = "facebook/opt-2.7b"
+
     elif name == "pythia":
+        # Map sizes to Pythia models
         if phase == "small":
-            base_name = "EleutherAI/pythia-410m-deduped"
-            checkpoint_list = PYTHIA_PUBLIC_CHECKPOINTS
+            model_name = "EleutherAI/pythia-410m-deduped"
         elif phase == "medium":
-            base_name = "EleutherAI/pythia-1.4B-deduped"
-            checkpoint_list = PYTHIA_PUBLIC_CHECKPOINTS
+            model_name = "EleutherAI/pythia-1.4b-deduped"
         else:  # large
-            base_name = "EleutherAI/pythia-6.9B-deduped"
-            checkpoint_list = PYTHIA_PUBLIC_CHECKPOINTS
+            model_name = "EleutherAI/pythia-2.8b-deduped"
 
-
-        
+        # Validate and set snapshot revision
         if snapshot_step:
-            if snapshot_step not in checkpoint_list:
-                raise ValueError(f"Snapshot {snapshot_step} not available for {base_name}")
-            model_name = base_name
+            if snapshot_step not in PYTHIA_PUBLIC_CHECKPOINTS:
+                raise ValueError(
+                    f"Snapshot {snapshot_step} not available for {model_name}. "
+                    f"Choose from {PYTHIA_PUBLIC_CHECKPOINTS[:5]}... up to step143000"
+                )
             revision = snapshot_step
-        else:
-            model_name = base_name
-            revision = None
+
     else:
-        raise ValueError(f"Unknown model: {name}")
+        raise ValueError(f"Unknown model family: {name}")
     
+    # Device
     device = "cuda" if torch.cuda.is_available() else "cpu"
-    print(f"Loading {model_name} on {device}...")
+    print(f"Loading {model_name} (phase={phase}, snapshot={revision}) on {device}...")
     
-    tokenizer = AutoTokenizer.from_pretrained(base_name, revision=snapshot_step)
+    # Load tokenizer
+    tokenizer = AutoTokenizer.from_pretrained(model_name, revision=revision)
     if tokenizer.pad_token is None:
         tokenizer.pad_token = tokenizer.eos_token
-    
-    model = AutoModelForCausalLM.from_pretrained(base_name, revision=snapshot_step)
+
+    # Load model
+    model = AutoModelForCausalLM.from_pretrained(model_name, revision=revision)
     model.config.pad_token_id = tokenizer.pad_token_id
     model.to(device)
     model.eval()
-    
-    return tokenizer, model, device, base_name
+
+    return tokenizer, model, device, model_name
