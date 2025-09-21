@@ -12,4 +12,4 @@
   template: "What is {verb} {num1} and {num2}?"
   items: []
   addition_verbs: ["the sum of"]
-  subtraction_verbs: ["the difference between"]
+  subtraction_verbs: ["the result of subtraction between"]

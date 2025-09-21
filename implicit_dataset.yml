@@ -24,7 +24,7 @@
   addition_verbs: ["hired"]
   subtraction_verbs: ["fired"]
 - id: 6
-  template: "In the supermarket there are {num1} {item1}, after {num2} {item2} {verb} how many {item1} are there?"
+  template: "In the supermarket there are {num1} {item1}, how many {item1} are there after {num2} {item2} {verb}?"
   items: ["milk crates", "yogurt boxes", "bread packages"]
   addition_verbs: ["arrived from the factory"]
   subtraction_verbs: ["were sold", "got spoiled"]
