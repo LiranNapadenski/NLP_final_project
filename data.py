@@ -45,6 +45,14 @@ class PromptOperators:
     PLUS = "+"
     MINUS = "-"
 
+
+def format_num(num, number_format):
+    if num <= NUM_TO_TEXT_MAX and number_format == NumberFormats.TEXTUAL:
+        return NUM_TO_TEXT[num]
+    else:
+        return str(num)
+
+
 class PromptTemplate:
     question_format = "Question: {question_text} \nAnswer:"
     def __init__(self, id, template, addition_verbs, subtraction_verbs, items):
@@ -62,62 +70,77 @@ class PromptTemplate:
         for operation, verbs in [(PromptOperators.PLUS, self.addition_verbs), (PromptOperators.MINUS, self.subtraction_verbs)]:
             for verb in verbs:
                 for num1 in range(1, max_number):
-                    if num1 > NUM_TO_TEXT_MAX:
-                        number_format = NumberFormats.NUMERIC
                     for item in self.items:
                         item1 = item if num1 != 1 else item[:-1]
                         for num2 in range(1, num1):
-                            item2 = item if num2 > 1 else item[:-1]
-                            num1_str = NUM_TO_TEXT[num1] if num1 <= NUM_TO_TEXT_MAX else str(num1)
-                            num2_str = NUM_TO_TEXT[num2] if num2 <= NUM_TO_TEXT_MAX else str(num2)
 
-                            question_text = self.template.format(num1=num1_str,
-                                                                 num2=num2_str,
-                                                                 item1=item1,
-                                                                 item2=item2,
-                                                                 verb=verb)
+                            if num1 > NUM_TO_TEXT_MAX: # If number is too large, there is no choice
+                                number_formats = [NumberFormats.NUMERIC]
+                            elif number_format is None: # If caller has no preference, do both
+                                number_formats = [NumberFormats.TEXTUAL, NumberFormats.NUMERIC]
+                            else: # If caller has a preference, do only the preference
+                                number_formats = [number_format]
 
-                            prompt_text = self.question_format.format(question_text=question_text)
+                            for number_format in number_formats:
+                                item2 = item if num2 > 1 else item[:-1]
+                                num1_str = format_num(num1, number_format)
+                                num2_str = format_num(num2, number_format)
 
-                            prompts.append(Prompt(template_id=self.id,
-                                                  text=prompt_text,
-                                                  operator=operation, num1=num1, num2=num2,
-                                                  items=item, verb=verb, number_format=number_format))
+                                question_text = self.template.format(num1=num1_str,
+                                                                     num2=num2_str,
+                                                                     item1=item1,
+                                                                     item2=item2,
+                                                                     verb=verb)
+
+                                prompt_text = self.question_format.format(question_text=question_text)
+
+                                prompts.append(Prompt(template_id=self.id,
+                                                      text=prompt_text,
+                                                      operator=operation, num1=num1, num2=num2,
+                                                      items=item, verb=verb, number_format=number_format))
 
         return prompts
 
-    def generate_n_prompts(self, num_of_prompts, operation, max_number, number_format):
+    def generate_prompts(self, num_of_prompts, max_number, number_format=None):
         prompts = []
-        verbs = self.addition_verbs if operation == PromptOperators.PLUS else self.subtraction_verbs
+
         if len(self.items) == 0:
             self.items = [" "]
 
-        for _ in range(num_of_prompts):
-            num1 = random.randint(1, max_number)
-            num2 = random.randint(1, num1)
+        randomize_number_format = True if number_format is None else False
 
-            if num1 > NUM_TO_TEXT_MAX:
-                number_format = NumberFormats.NUMERIC
+        for operation, verbs in [(PromptOperators.PLUS, self.addition_verbs),
+                                 (PromptOperators.MINUS, self.subtraction_verbs)]:
+            for verb in verbs:
+                for _ in range(num_of_prompts):
+                    num1 = random.randint(1, max_number)
+                    num2 = random.randint(1, num1)
 
-            verb = random.choice(verbs)
-            item = random.choice(self.items)
-            item1 = item if num1 > 1 else item[:-1]
-            item2 = item
-            num1_str = NUM_TO_TEXT[num1] if num1 <= NUM_TO_TEXT_MAX else str(num1)
-            num2_str = NUM_TO_TEXT[num2] if num2 <= NUM_TO_TEXT_MAX else str(num2)
+                    if randomize_number_format:
+                        if num1 > NUM_TO_TEXT_MAX:
+                            number_format = NumberFormats.NUMERIC
+                        else:
+                            number_format = random.choice([NumberFormats.TEXTUAL, NumberFormats.NUMERIC])
 
-            question_text = self.template.format(num1=num1_str,
-                                                 num2=num2_str,
-                                                 item1=item1,
-                                                 item2=item2,
-                                                 verb=verb)
+                    item = random.choice(self.items)
+                    item1 = item if num1 > 1 else item[:-1]
+                    item2 = item
 
-            prompt_text = self.question_format.format(question_text=question_text)
+                    num1_str = format_num(num1, number_format)
+                    num2_str = format_num(num2, number_format)
 
-            prompts.append(Prompt(template_id=self.id,
-                                  text=prompt_text,
-                                  operator=operation, num1=num1, num2=num2,
-                                  items=item, verb=verb, number_format=number_format))
+                    question_text = self.template.format(num1=num1_str,
+                                                         num2=num2_str,
+                                                         item1=item1,
+                                                         item2=item2,
+                                                         verb=verb)
+
+                    prompt_text = self.question_format.format(question_text=question_text)
+
+                    prompts.append(Prompt(template_id=self.id,
+                                          text=prompt_text,
+                                          operator=operation, num1=num1, num2=num2,
+                                          items=item, verb=verb, number_format=number_format))
 
         return prompts
 
@@ -126,14 +149,14 @@ class Prompt:
     def __init__(self, template_id, text, operator, num1, num2, items, verb, number_format):
         self.template_id = template_id
         self.text = text
-        self.operator = operator
         self.num1 = num1
+        self.operator = operator
         self.num2 = num2
-        self.items = items
-        self.verb = verb
         self.answer = num1 + num2 if operator == '+' else num1 - num2
         self.answer_str = NUM_TO_TEXT[self.answer] if self.answer <= NUM_TO_TEXT_MAX else ""
         self.number_format = number_format
+        self.items = items
+        self.verb = verb
         self.id = 0 # To be set by dataset builder
 
 
@@ -156,16 +179,15 @@ def build_dataset(dataset_type, number_range_key, n_per_combo=20, generate_all_p
 
         prompts = []
         max_num = MAX_NUMBERS[number_range_key]
-        number_format = NumberFormats.NUMERIC if dataset_type == DatasetTypes.EXPLICIT else NumberFormats.TEXTUAL
+
+        number_format = NumberFormats.NUMERIC if dataset_type == DatasetTypes.EXPLICIT else None
 
         if generate_all_prompts:
             for template in templates:
                 prompts += template.generate_all_prompts(max_num, number_format)
         else:
-            for op in [PromptOperators.PLUS, PromptOperators.MINUS]:
-                for template in templates:
-                    # TODO - generate n prompts per verb and item!
-                    prompts += template.generate_n_prompts(n_per_combo, op, max_num, number_format)
+            for template in templates:
+                prompts += template.generate_prompts(n_per_combo, max_num, number_format)
 
         prompt_id = 0
         for p in prompts:
@@ -195,7 +217,7 @@ def dataset_factory(dataset_name: str, n_per_combo=20, generate_all_prompts=Fals
 
 if __name__ == "__main__":
     # Test
-    prompts = dataset_factory("implicit_medium", n_per_combo=20, generate_all_prompts=True)
+    prompts = dataset_factory("explicit_small", n_per_combo=20, generate_all_prompts=False)
     for p in prompts:
-        print(vars(p))
+        print(p.text)
     print(len(prompts))
