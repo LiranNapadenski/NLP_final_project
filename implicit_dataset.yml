@@ -14,7 +14,7 @@
   addition_verbs: ["earned", "acquired", "retrieved"]
   subtraction_verbs: ["spent", "gave away", "used"]
 - id: 4
-  template: "I got to school with {num1} {item1}. I {verb} {num2} {item2} before lunch. How many do I have?"
+  template: "I went to school with {num1} {item1}. I {verb} {num2} {item2} before lunch. How many do I have?"
   items: ["pencils", "pens", "sharpies"]
   addition_verbs: ["bought"]
   subtraction_verbs: ["used up", "broke"]
