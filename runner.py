@@ -84,9 +84,10 @@ def run_lm_experiment_datasets(
     Run LM logical/arithmetic evaluation across multiple datasets, models, sizes, snapshots, and seeds.
     """
     timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M")
+    out_csv = f"{timestamp}_{out_csv}.csv"
 
     device = torch.device("cuda" if use_cuda and torch.cuda.is_available() else "cpu")
-    header_written = os.path.exists(timestamp + out_csv)
+    header_written = os.path.exists(out_csv)
 
     with open(out_csv, "a", newline="") as f:
         blank_prompt = Prompt("","","",0,0,"","","")
