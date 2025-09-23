@@ -4,7 +4,7 @@
   addition_verbs: ["found", "received", "got"]
   subtraction_verbs: ["ate", "lost"]
 - id: 2
-  template: "At first there are {num1} {item1} in the parking lot. How many {item2} are there after {num2} {item1} {verb}"
+  template: "At first there are {num1} {item1} in the parking lot. How many {item2} are there after {num2} {item1} {verb}?"
   items: ["cars", "trucks", "vehicles", "motorcycles"]
   addition_verbs: ["arrive"]
   subtraction_verbs: ["leave", "drive away", "go away"]
@@ -33,3 +33,18 @@
   items: ["kids", "boys", "girls", "friends"]
   addition_verbs: ["joined", "came along"]
   subtraction_verbs: ["went home", "were picked up by their parents"]
+- id: 8
+  template: "On the bus, {num1} {item1} are sitting quietly. How many {item1} are on the bus after {num2} {item2} {verb} the bus?"
+  items: ["passengers", "students"]
+  addition_verbs: ["board", "hop on", "enter"]
+  subtraction_verbs: ["exit", "get off", "left"]
+- id: 9
+  template: "{num1} {item1} are sitting on a wire above the street. A moment later {num2} {item2} {verb} that wire. How many {item1} are then on the wire?"
+  items: [ "birds", "pigeons", "crows"]
+  addition_verbs: [ "land on", "settle on", "alight on" ]
+  subtraction_verbs: [ "fly off", "take off", "soar away from"]
+- id: 10
+  template: "Once upon a time there was a small town with {num1} {item1}. Over the years {num2} {item2} {verb}. Given that information only, how many {item1} are standing there today?"
+  items: [ "buildings" , "houses"]
+  addition_verbs: ["were built" , "were constructed", "added"]
+  subtraction_verbs: ["were destroyed", "were torn down", "collapsed"]
