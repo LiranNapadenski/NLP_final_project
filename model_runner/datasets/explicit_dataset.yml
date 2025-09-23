@@ -1,5 +1,5 @@
 - id: 1
-  template: "What is {num1} {verb} {num2}?"
+  template: "What is the result of {num1} {verb} {num2}?"
   items: []
   addition_verbs: ["+", "plus"]
   subtraction_verbs: ["-", "minus"]
