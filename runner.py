@@ -3,10 +3,13 @@ import os
 import torch
 import csv
 from itertools import product
+
+import evaluation_metrics
 from data import dataset_factory, Prompt
 from models import build_lm_model
 from utils import set_seed
 import re 
+import datetime
 
 try:
     import wandb
@@ -87,7 +90,7 @@ def run_lm_experiment_datasets(
         blank_prompt = Prompt("","","",0,0,"","","")
         prompt_fieldnames = list(vars(blank_prompt).keys())
         fieldnames = [
-            "dataset", "model", "size", "full model name", "snapshot", "seed", "raw_prediction", "answer_only", "correct"
+            "dataset", "model", "size", "full model name", "snapshot", "seed", "generated_text", "new_tokens_only", "text_has_answer", "text_has_single_number"
         ] + prompt_fieldnames
 
         writer = csv.DictWriter(f, fieldnames=fieldnames)
@@ -129,24 +132,16 @@ def run_lm_experiment_datasets(
                         
                         with torch.no_grad():
                             inputs = tokenizer(prompt.text, return_tensors="pt").to(device)
-                            outputs = model.generate(**inputs, max_new_tokens=max_tokens, do_sample=False, stop_strings="\n", tokenizer=tokenizer)
-                        pred_text = tokenizer.decode(outputs[0], skip_special_tokens=True)
-
-                        # remove prompt from generated text
-                        # Keep the raw output
-                        raw_prediction = pred_text
+                            outputs = model.generate(**inputs, max_new_tokens=max_tokens, do_sample=False, stop_strings="\n", tokenizer=tokenizer, repetition_penalty=4.0)
+                        generated_text = tokenizer.decode(outputs[0], skip_special_tokens=True)
 
                         # Extract only what comes after the final "Answer:"
-                        match = re.search(r"Answer:\s*(.*)", pred_text, re.DOTALL)
-                        if match:
-                            answer_only = match.group(1).strip()
-                        else:
-                            answer_only = raw_prediction.strip()
+                        match = re.search(r"Answer:\s*(.*)", generated_text, re.DOTALL)
+                        generated_text_new_tokens_only = match.group(1).strip() if match else ""
                         
-                        # Simple exact match evaluation
-                        correct = None
-                        if exact_match:
-                            correct = str(prompt.answer) in answer_only or (len(prompt.answer_str) > 0 and prompt.answer_str in answer_only)
+                        # Answer Evaluation
+                        text_has_single_number = evaluation_metrics.text_has_single_number(generated_text_new_tokens_only)
+                        text_has_answer = evaluation_metrics.text_has_answer(generated_text_new_tokens_only, prompt.answer, prompt.answer_str)
 
                         row = {
                         "dataset": dataset_name,
@@ -155,9 +150,10 @@ def run_lm_experiment_datasets(
                         "full model name": model_full_name,
                         "snapshot": step,
                         "seed": seed,
-                        "raw_prediction": raw_prediction,
-                        "answer_only": answer_only,
-                        "correct": correct
+                        "generated_text": generated_text,
+                        "new_tokens_only": generated_text_new_tokens_only,
+                        "text_has_answer": text_has_answer,
+                        "text_has_single_number": text_has_single_number
                     }
                         row.update(vars(prompt))
 
