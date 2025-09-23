@@ -175,7 +175,7 @@ def build_dataset(dataset_type, number_range_key, n_per_combo=20, generate_all_p
     :param n_per_combo: the number of prompts to generate for each question template
     :generate_all_prompts: whether to generate all possible prompts in each template
     """
-    templates_yml_path = dataset_type + "_dataset.yml"
+    templates_yml_path = "datasets/" + dataset_type + "_dataset.yml"
     script_dir = os.path.dirname(os.path.realpath(__file__)) 
     templates_yml_path = os.path.join(script_dir, templates_yml_path)
     
@@ -225,7 +225,12 @@ def dataset_factory(dataset_name: str, n_per_combo=20, generate_all_prompts=Fals
 
 if __name__ == "__main__":
     # Test
-    prompts = dataset_factory("explicit_small", n_per_combo=20, generate_all_prompts=False)
+    prompts = dataset_factory("implicit_small", n_per_combo=20, generate_all_prompts=False)
     for p in prompts:
         print(p.text)
     print(len(prompts))
+
+    nums = set(map(str, range(200)))
+    num_strings = set(NUM_TO_TEXT.values())
+    s = set("Danny as five apples and 4 bars and 100 friends".split())
+    print()

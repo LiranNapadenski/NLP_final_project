@@ -1,5 +1,0 @@
-model,size,operator,total_samples,correct_samples,accuracy
-pythia,large,+,1230,155,0.126
-pythia,large,-,1120,96,0.0857
-pythia,medium,+,2100,237,0.1129
-pythia,medium,-,2100,185,0.0881

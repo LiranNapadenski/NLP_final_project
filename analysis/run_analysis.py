@@ -6,13 +6,11 @@ with minimal output and clear separation of concerns.
 """
 
 import pandas as pd
-import numpy as np
 from datetime import datetime
 from pathlib import Path
 from typing import Optional, Dict, Any
 
 # Import our modular components
-import utils
 import plot
 
 
@@ -29,7 +27,7 @@ class AnalysisRunner:
             verbose: Whether to print progress messages
         """
         self.data_path = data_path
-        self.output_dir = Path(output_dir) if output_dir else Path(".")
+        self.output_dir = Path(output_dir) if output_dir else Path("..")
         self.verbose = verbose
         self.data = None
         self.results = {}
@@ -262,7 +260,6 @@ Generated: {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}
         if self.verbose:
             print("✅ Analysis complete")
             print(f"Overall accuracy: {self.results['summary_stats']['overall_accuracy']*100:.1f}%")
-        
         return summary
 
 

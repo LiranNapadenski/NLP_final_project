@@ -84,7 +84,7 @@ def run_lm_experiment_datasets(
     Run LM logical/arithmetic evaluation across multiple datasets, models, sizes, snapshots, and seeds.
     """
     timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M")
-    out_csv = f"{timestamp}_{out_csv}.csv"
+    out_csv = f"results/{timestamp}_{out_csv}"
 
     device = torch.device("cuda" if use_cuda and torch.cuda.is_available() else "cpu")
     header_written = os.path.exists(out_csv)
@@ -209,7 +209,7 @@ def main():
         use_cuda=True,
         exact_match=exact_match,
         wandb_args=wandb_args,
-        n_per_combo=20  # Number of examples per combination in each dataset
+        n_per_combo=10  # Number of examples per combination in each dataset
     )
 
 if __name__ == "__main__":

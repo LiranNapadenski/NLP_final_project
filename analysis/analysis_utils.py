@@ -1,33 +1,15 @@
 from __future__ import annotations
-import os
-import random
-from typing import List
-
-import numpy as np
-import torch
 
 import pandas as pd
 import numpy as np
 from typing import Dict, List, Tuple, Optional, Union
-import re
-from pathlib import Path
+
 """
 Utility functions for processing mathematical reasoning experiment data & plotting.
 
 This module provides clean, modular functions for data loading, processing, 
 and statistical analysis without excessive output.
 """
-
-
-def set_seed(seed: int) -> None:
-    random.seed(seed)
-    np.random.seed(seed)
-    torch.manual_seed(seed)
-    torch.cuda.manual_seed_all(seed)
-    torch.backends.cudnn.deterministic = True
-    torch.backends.cudnn.benchmark = False
-    
-    
 
 def load_data(filepath: str, verbose: bool = False) -> pd.DataFrame:
     """
