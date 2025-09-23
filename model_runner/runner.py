@@ -10,6 +10,7 @@ from models import build_lm_model
 from utils import set_seed
 import re 
 import datetime
+import numpy as np
 
 try:
     import wandb
@@ -45,8 +46,19 @@ def parse_args() -> argparse.Namespace:
         help="Training steps to evaluate (for snapshot experiments)"
     )
 
+    p.add_argument(
+        "--rep_penalty", type=float, nargs="*", default=[1.0],
+        help="Penalty factor for repeating tokens, 1.0 means no penalty"
+    )
+
+    p.add_argument(
+        "--prompts_per_verb", type=int, default=20,
+        help="Number of prompts to generate (with varying numbers and items) for each possible verb of a template"
+    )
+
     # Logging / output
     p.add_argument("--out", type=str, default="results.csv")
+
     p.add_argument("--wandb-project", type=str, default="", help="W&B project name")
     p.add_argument("--wandb-entity", type=str, default="", help="Optional W&B entity (team)")
     p.add_argument("--wandb-mode", type=str, default="online", choices=["online", "offline", "disabled"]) 
@@ -78,13 +90,14 @@ def run_lm_experiment_datasets(
     use_cuda: bool,
     exact_match: bool,#bad improve plaese!
     wandb_args: dict,
-    n_per_combo: int = 20
+    prompts_per_verb: int,
+    repeatition_penalties: list,
 ):
     """
     Run LM logical/arithmetic evaluation across multiple datasets, models, sizes, snapshots, and seeds.
     """
     timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M")
-    out_csv = f"results/{timestamp}_{out_csv}"
+    out_csv = f"{out_csv}_{timestamp}.csv"
 
     device = torch.device("cuda" if use_cuda and torch.cuda.is_available() else "cpu")
     header_written = os.path.exists(out_csv)
@@ -93,7 +106,7 @@ def run_lm_experiment_datasets(
         blank_prompt = Prompt("","","",0,0,"","","")
         prompt_fieldnames = list(vars(blank_prompt).keys())
         fieldnames = [
-            "dataset", "model", "size", "full model name", "snapshot", "seed", "generated_text", "new_tokens_only", "text_has_answer", "text_has_single_number"
+            "dataset", "model", "size", "full model name", "snapshot", "seed", "generated_text", "new_tokens_only", "text_has_answer", "text_has_single_number", "repetition_penalty"
         ] + prompt_fieldnames
 
         writer = csv.DictWriter(f, fieldnames=fieldnames)
@@ -101,74 +114,76 @@ def run_lm_experiment_datasets(
             writer.writeheader()
 
         for dataset_name in dataset_names:
-            for seed in seeds:
-                set_seed(seed)
+            for penalty in repeatition_penalties:
+                for seed in seeds:
+                    set_seed(seed)
 
-                # Build the dataset using your factory
-                prompts = dataset_factory(dataset_name, n_per_combo=n_per_combo)
-                print(f"Created {len(prompts)} prompts for {dataset_name}")
+                    # Build the dataset using your factory
+                    prompts = dataset_factory(dataset_name, prompts_per_verb=prompts_per_verb)
+                    print(f"Created {len(prompts)} prompts for {dataset_name}")
 
-                for model_name, size, step in product(models, sizes, steps):
-                    run_cfg = dict(
-                        dataset=dataset_name,
-                        model=model_name,
-                        size=size,
-                        snapshot=step,
-                        seed=seed,
-                        max_tokens=max_tokens
-                    )
-                    run_name = f"{dataset_name}-{model_name}-{size}-step{step}-s{seed}"
-                    wbr = wandb_init_or_none(
-                        use=bool(wandb_args.get("project")),
-                        project=wandb_args.get("project", ""),
-                        entity=wandb_args.get("entity", ""),
-                        mode=wandb_args.get("mode", "online"),
-                        config=run_cfg,
-                        group=wandb_args.get("group", dataset_name),
-                        name=run_name,
-                    )
+                    for model_name, size, step in product(models, sizes, steps):
+                        run_cfg = dict(
+                            dataset=dataset_name,
+                            model=model_name,
+                            size=size,
+                            snapshot=step,
+                            seed=seed,
+                            max_tokens=max_tokens
+                        )
+                        run_name = f"{dataset_name}-{model_name}-{size}-step{step}-s{seed}"
+                        wbr = wandb_init_or_none(
+                            use=bool(wandb_args.get("project")),
+                            project=wandb_args.get("project", ""),
+                            entity=wandb_args.get("entity", ""),
+                            mode=wandb_args.get("mode", "online"),
+                            config=run_cfg,
+                            group=wandb_args.get("group", dataset_name),
+                            name=run_name,
+                        )
 
-                    # Load model/tokenizer
-                    tokenizer, model, device, model_full_name = build_lm_model(model_name, phase=size, snapshot_step=f"step{step}" if step else None)
-                    model.config.pad_token_id = tokenizer.pad_token_id
-                    for prompt in prompts:
-                        
-                        with torch.no_grad():
-                            inputs = tokenizer(prompt.text, return_tensors="pt").to(device)
-                            outputs = model.generate(**inputs, max_new_tokens=max_tokens, do_sample=False, stop_strings="\n", tokenizer=tokenizer, repetition_penalty=4.0)
-                        generated_text = tokenizer.decode(outputs[0], skip_special_tokens=True)
+                        # Load model/tokenizer
+                        tokenizer, model, device, model_full_name = build_lm_model(model_name, phase=size, snapshot_step=f"step{step}" if step else None)
+                        model.config.pad_token_id = tokenizer.pad_token_id
+                        for prompt in prompts:
 
-                        # Extract only what comes after the final "Answer:"
-                        match = re.search(r"Answer:\s*(.*)", generated_text, re.DOTALL)
-                        generated_text_new_tokens_only = match.group(1).strip() if match else ""
-                        
-                        # Answer Evaluation
-                        text_has_single_number = evaluation_metrics.text_has_single_number(generated_text_new_tokens_only)
-                        text_has_answer = evaluation_metrics.text_has_answer(generated_text_new_tokens_only, prompt.answer, prompt.answer_str)
+                            with torch.no_grad():
+                                inputs = tokenizer(prompt.text, return_tensors="pt").to(device)
+                                outputs = model.generate(**inputs, max_new_tokens=max_tokens, do_sample=False, stop_strings="\n", tokenizer=tokenizer, repetition_penalty=penalty)
+                            generated_text = tokenizer.decode(outputs[0], skip_special_tokens=True)
 
-                        row = {
-                        "dataset": dataset_name,
-                        "model": model_name,
-                        "size": size,
-                        "full model name": model_full_name,
-                        "snapshot": step,
-                        "seed": seed,
-                        "generated_text": generated_text,
-                        "new_tokens_only": generated_text_new_tokens_only,
-                        "text_has_answer": text_has_answer,
-                        "text_has_single_number": text_has_single_number
-                    }
-                        row.update(vars(prompt))
+                            # Extract only what comes after the final "Answer:"
+                            match = re.search(r"Answer:\s*(.*)", generated_text, re.DOTALL)
+                            generated_text_new_tokens_only = match.group(1).strip() if match else ""
 
-                        writer.writerow(row)
-                        f.flush()
-                        del inputs, outputs
+                            # Answer Evaluation
+                            text_has_single_number = evaluation_metrics.text_has_single_number(generated_text_new_tokens_only)
+                            text_has_answer = evaluation_metrics.text_has_answer(generated_text_new_tokens_only, prompt.answer, prompt.answer_str)
 
-                    if wbr is not None:
-                        wbr.finish()
-                    
-                    del model, tokenizer, 
-                    torch.cuda.empty_cache() 
+                            row = {
+                            "dataset": dataset_name,
+                            "model": model_name,
+                            "size": size,
+                            "full model name": model_full_name,
+                            "snapshot": step,
+                            "seed": seed,
+                            "generated_text": generated_text,
+                            "new_tokens_only": generated_text_new_tokens_only,
+                            "text_has_answer": text_has_answer,
+                            "text_has_single_number": text_has_single_number,
+                            "repetition_penalty": penalty,
+                        }
+                            row.update(vars(prompt))
+
+                            writer.writerow(row)
+                            f.flush()
+                            del inputs, outputs
+
+                        if wbr is not None:
+                            wbr.finish()
+
+                        del model, tokenizer,
+                        torch.cuda.empty_cache()
 
 
 def main():
@@ -209,7 +224,8 @@ def main():
         use_cuda=True,
         exact_match=exact_match,
         wandb_args=wandb_args,
-        n_per_combo=10  # Number of examples per combination in each dataset
+        prompts_per_verb=args.prompts_per_verb,  # Number of examples per combination in each dataset
+        repeatition_penalties=args.rep_penalty
     )
 
 if __name__ == "__main__":

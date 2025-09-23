@@ -167,12 +167,12 @@ class Prompt:
 
 
 # Core dataset builder
-def build_dataset(dataset_type, number_range_key, n_per_combo=20, generate_all_prompts=False):
+def build_dataset(dataset_type, number_range_key, prompts_per_verb=20, generate_all_prompts=False):
     """
-    Generates n_per_combo prompts per template per operator (+/-), total of 2 * n_per_combo * (number of templates in yml)
+    Generates prompts_per_verb prompts per template per operator (+/-), total of 2 * prompts_per_verb * (number of templates in yml)
     :param dataset_type: "implicit" or "explicit" phrasing of the question
     :param number_range_key: "small" or "medium" or "large", the scale of the numbers in the questions
-    :param n_per_combo: the number of prompts to generate for each question template
+    :param prompts_per_verb: the number of prompts to generate for each question template
     :generate_all_prompts: whether to generate all possible prompts in each template
     """
     templates_yml_path = "datasets/" + dataset_type + "_dataset.yml"
@@ -195,7 +195,7 @@ def build_dataset(dataset_type, number_range_key, n_per_combo=20, generate_all_p
                 prompts += template.generate_all_prompts(max_num, number_format)
         else:
             for template in templates:
-                prompts += template.generate_prompts(n_per_combo, max_num, number_format)
+                prompts += template.generate_prompts(prompts_per_verb, max_num, number_format)
 
         prompt_id = 0
         for p in prompts:
@@ -206,7 +206,7 @@ def build_dataset(dataset_type, number_range_key, n_per_combo=20, generate_all_p
 
 
 # Factory function
-def dataset_factory(dataset_name: str, n_per_combo=20, generate_all_prompts=False):
+def dataset_factory(dataset_name: str, prompts_per_verb=20, generate_all_prompts=False):
     """
     Generate different datasets based on dataset_name.
     """
@@ -217,7 +217,7 @@ def dataset_factory(dataset_name: str, n_per_combo=20, generate_all_prompts=Fals
     if (dataset_type in [DatasetTypes.IMPLICIT, DatasetTypes.EXPLICIT] and
             number_range_key in [NumberRanges.SMALL, NumberRanges.MEDIUM, NumberRanges.LARGE]):
 
-        return build_dataset(dataset_type, number_range_key, n_per_combo, generate_all_prompts)
+        return build_dataset(dataset_type, number_range_key, prompts_per_verb, generate_all_prompts)
 
     else:
         raise ValueError(f"Unknown dataset name {dataset_name}")
@@ -225,12 +225,7 @@ def dataset_factory(dataset_name: str, n_per_combo=20, generate_all_prompts=Fals
 
 if __name__ == "__main__":
     # Test
-    prompts = dataset_factory("implicit_small", n_per_combo=20, generate_all_prompts=False)
+    prompts = dataset_factory("implicit_small", prompts_per_verb=20, generate_all_prompts=False)
+    import evaluation_metrics
     for p in prompts:
-        print(p.text)
-    print(len(prompts))
-
-    nums = set(map(str, range(200)))
-    num_strings = set(NUM_TO_TEXT.values())
-    s = set("Danny as five apples and 4 bars and 100 friends".split())
-    print()
+        print(set(evaluation_metrics.split_by_all_punctuations(p.text)))
