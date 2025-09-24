@@ -47,7 +47,7 @@ def parse_args() -> argparse.Namespace:
     )
 
     p.add_argument(
-        "--rep_penalty", type=float, nargs="*", default=[1.0],
+        "--rep_penalty", type=float, nargs="*", default=[1.07],
         help="Penalty factor for repeating tokens, 1.0 means no penalty"
     )
 
