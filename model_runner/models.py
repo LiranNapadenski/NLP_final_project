@@ -1,6 +1,7 @@
 import torch
 from transformers import AutoTokenizer, AutoModelForCausalLM
-from accelerate import Accelerator
+import deepspeed
+
 
 # Public snapshots for Pythia (1k → 143k steps)
 PYTHIA_PUBLIC_CHECKPOINTS = ["step" + str(1000 * num) for num in range(1, 144)]
@@ -66,7 +67,6 @@ def build_lm_model(name: str, phase: str = "small", snapshot_step: str = None):
     else:
         raise ValueError(f"Unknown model family: {name}")
     
-    accelerator = Accelerator()
     
     # Load tokenizer
     tokenizer = AutoTokenizer.from_pretrained(model_name, revision=revision)
@@ -76,7 +76,13 @@ def build_lm_model(name: str, phase: str = "small", snapshot_step: str = None):
     # Load model
     model = AutoModelForCausalLM.from_pretrained(model_name, revision=revision)
     model.config.pad_token_id = tokenizer.pad_token_id
-    model, tokenizer = accelerator.prepare(model, tokenizer)
+    model = deepspeed.init_inference(
+        model,
+        mp_size=3,            # number of GPUs
+        dtype="fp16",          # mixed precision
+        replace_method="auto",
+        replace_with_kernel_inject=True,
+    )
     model.eval()
 
     return tokenizer, model, model_name
