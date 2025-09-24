@@ -190,8 +190,9 @@ def run_lm_experiment_datasets(
 def main():
     # Parse command-line arguments
     for i in range(torch.cuda.device_count()):
-    torch.cuda.set_device(i)
-    torch.cuda.empty_cache()
+        print(f"cleand cache of {i}")
+        torch.cuda.set_device(i)
+        torch.cuda.empty_cache()
     args = parse_args()
 
     # Set up WandB logging configuration
