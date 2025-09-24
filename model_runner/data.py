@@ -26,6 +26,7 @@ NUM_TO_TEXT = {
     20: "twenty",
 }
 NUM_TO_TEXT_MAX = 20
+TEXT_TO_NUM = {text: num for num, text in NUM_TO_TEXT.items()}
 
 class NumberFormats:
     TEXTUAL = "textual"

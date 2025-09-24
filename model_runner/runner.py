@@ -104,10 +104,12 @@ def run_lm_experiment_datasets(
 
     with open(out_csv, "a", newline="") as f:
         blank_prompt = Prompt("","","",0,0,"","","")
+        blank_eval_metrics = evaluation_metrics.EvaluationMetrics("", blank_prompt)
         prompt_fieldnames = list(vars(blank_prompt).keys())
+        evaluation_fieldnames = list(vars(blank_eval_metrics).keys())
         fieldnames = [
-            "dataset", "model", "size", "full model name", "snapshot", "seed", "generated_text", "new_tokens_only", "text_has_answer", "text_has_single_number", "repetition_penalty"
-        ] + prompt_fieldnames
+            "dataset", "model", "size", "full model name", "snapshot", "repetition_penalty", "seed", "generated_text", "new_tokens_only"
+        ] + evaluation_fieldnames + prompt_fieldnames
 
         writer = csv.DictWriter(f, fieldnames=fieldnames)
         if not header_written:
@@ -157,8 +159,7 @@ def run_lm_experiment_datasets(
                             generated_text_new_tokens_only = match.group(1).strip() if match else ""
 
                             # Answer Evaluation
-                            text_has_single_number = evaluation_metrics.text_has_single_number(generated_text_new_tokens_only)
-                            text_has_answer = evaluation_metrics.text_has_answer(generated_text_new_tokens_only, prompt.answer, prompt.answer_str)
+                            eval_metrics = evaluation_metrics.EvaluationMetrics(generated_text_new_tokens_only, prompt)
 
                             row = {
                             "dataset": dataset_name,
@@ -166,13 +167,12 @@ def run_lm_experiment_datasets(
                             "size": size,
                             "full model name": model_full_name,
                             "snapshot": step,
+                            "repetition_penalty": penalty,
                             "seed": seed,
                             "generated_text": generated_text,
                             "new_tokens_only": generated_text_new_tokens_only,
-                            "text_has_answer": text_has_answer,
-                            "text_has_single_number": text_has_single_number,
-                            "repetition_penalty": penalty,
-                        }
+                            }
+                            row.update(vars(eval_metrics))
                             row.update(vars(prompt))
 
                             writer.writerow(row)
