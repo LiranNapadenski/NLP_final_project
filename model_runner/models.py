@@ -1,5 +1,6 @@
 import torch
 from transformers import AutoTokenizer, AutoModelForCausalLM
+from accelerate import Accelerator
 
 # Public snapshots for Pythia (1k → 143k steps)
 PYTHIA_PUBLIC_CHECKPOINTS = ["step" + str(1000 * num) for num in range(1, 144)]
@@ -65,9 +66,7 @@ def build_lm_model(name: str, phase: str = "small", snapshot_step: str = None):
     else:
         raise ValueError(f"Unknown model family: {name}")
     
-    # Device
-    device = "cuda" if torch.cuda.is_available() else "cpu"
-    print(f"Loading {model_name} (phase={phase}, snapshot={revision}) on {device}...")
+    accelerator = Accelerator()
     
     # Load tokenizer
     tokenizer = AutoTokenizer.from_pretrained(model_name, revision=revision)
@@ -77,6 +76,7 @@ def build_lm_model(name: str, phase: str = "small", snapshot_step: str = None):
     # Load model
     model = AutoModelForCausalLM.from_pretrained(model_name, revision=revision)
     model.config.pad_token_id = tokenizer.pad_token_id
+    model, tokenizer = accelerator.prepare(model, tokenizer)
     model.eval()
 
     return tokenizer, model, device, model_name
