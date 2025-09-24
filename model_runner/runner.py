@@ -99,7 +99,6 @@ def run_lm_experiment_datasets(
     timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M")
     out_csv = f"{out_csv}_{timestamp}.csv"
 
-    device = torch.device("cuda" if use_cuda and torch.cuda.is_available() else "cpu")
     header_written = os.path.exists(out_csv)
 
     with open(out_csv, "a", newline="") as f:
@@ -145,12 +144,12 @@ def run_lm_experiment_datasets(
                         )
 
                         # Load model/tokenizer
-                        tokenizer, model, device, model_full_name = build_lm_model(model_name, phase=size, snapshot_step=f"step{step}" if step else None)
+                        tokenizer, model, model_full_name = build_lm_model(model_name, phase=size, snapshot_step=f"step{step}" if step else None)
                         model.config.pad_token_id = tokenizer.pad_token_id
                         for prompt in prompts:
 
                             with torch.no_grad():
-                                inputs = tokenizer(prompt.text, return_tensors="pt").to(device)
+                                inputs = tokenizer(prompt.text, return_tensors="pt")
                                 outputs = model.generate(**inputs, max_new_tokens=max_tokens, do_sample=False, stop_strings="\n", tokenizer=tokenizer, repetition_penalty=penalty)
                             generated_text = tokenizer.decode(outputs[0], skip_special_tokens=True)
 
