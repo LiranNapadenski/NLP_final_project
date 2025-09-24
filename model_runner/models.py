@@ -79,4 +79,4 @@ def build_lm_model(name: str, phase: str = "small", snapshot_step: str = None):
     model, tokenizer = accelerator.prepare(model, tokenizer)
     model.eval()
 
-    return tokenizer, model, device, model_name
+    return tokenizer, model, model_name
