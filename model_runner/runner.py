@@ -3,7 +3,6 @@ import os
 import torch
 import csv
 from itertools import product
-from accelerate import Accelerator
 
 import evaluation_metrics
 from data import dataset_factory, Prompt
@@ -99,7 +98,7 @@ def run_lm_experiment_datasets(
     """
     timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M")
     out_csv = f"{out_csv}_{timestamp}.csv"
-    accelerator = Accelerator()
+
     header_written = os.path.exists(out_csv)
 
     with open(out_csv, "a", newline="") as f:
@@ -150,7 +149,7 @@ def run_lm_experiment_datasets(
                         for prompt in prompts:
 
                             with torch.no_grad():
-                                inputs = tokenizer(prompt.text, return_tensors="pt").to(accelerator.device)
+                                inputs = tokenizer(prompt.text, return_tensors="pt")
                                 outputs = model.generate(**inputs, max_new_tokens=max_tokens, do_sample=False, stop_strings="\n", tokenizer=tokenizer, repetition_penalty=penalty)
                             generated_text = tokenizer.decode(outputs[0], skip_special_tokens=True)
 
@@ -183,11 +182,16 @@ def run_lm_experiment_datasets(
                             wbr.finish()
 
                         del model, tokenizer,
-                        torch.cuda.empty_cache()
+                        for i in range(torch.cuda.device_count()):
+                            torch.cuda.set_device(i)
+                            torch.cuda.empty_cache()
 
 
 def main():
     # Parse command-line arguments
+    for i in range(torch.cuda.device_count()):
+    torch.cuda.set_device(i)
+    torch.cuda.empty_cache()
     args = parse_args()
 
     # Set up WandB logging configuration
