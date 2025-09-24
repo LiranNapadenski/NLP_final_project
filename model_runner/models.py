@@ -26,7 +26,7 @@ def build_lm_model(name: str, phase: str = "small", snapshot_step: str = None):
         elif phase == "medium":
             model_name = "gpt2-medium"
         else:  # large
-            model_name = "gpt2-medium"
+            model_name = "gpt2-large"
 
     elif name == "neo":
         if phase == "small":
