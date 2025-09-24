@@ -9,7 +9,7 @@
   addition_verbs: ["arrive","drive in","make their way in"]
   subtraction_verbs: ["leave", "drive out", "pull away"]
 - id: 3
-  template: "You started the journey with {num1} {item1}. You {verb} {num2} {item2} during your quest. How much {item1} remains?"
+  template: "You started the journey with {num1} {item1}. You {verb} {num2} {item2} during your quest. How much {item1} do you have now?"
   items: ["gold coins", "silver coins", "dollar bills"]
   addition_verbs: ["earned", "acquired", "retrieved"]
   subtraction_verbs: ["spent", "gave away", "used"]
@@ -29,7 +29,7 @@
   addition_verbs: ["arrived from the factory", "restocked", "shipped in"]
   subtraction_verbs: ["were sold", "got spoiled", "were consumed"]
 - id: 7
-  template: "There were {num1} {item1} at the park. A few minutes later {num2} {item2} {verb}. How many {item1} are in the park in total?"
+  template: "At the park, {num1} {item1} are playing. A few minutes later {num2} {item2} {verb}. So how many {item1} are in the park right now?"
   items: ["kids", "boys", "girls", "friends"]
   addition_verbs: ["joined them", "came along", "showed up as well"]
   subtraction_verbs: ["went home", "were picked up by their parents", "ran away"]
