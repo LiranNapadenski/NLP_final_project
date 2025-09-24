@@ -3,6 +3,7 @@ import os
 import torch
 import csv
 from itertools import product
+from accelerate import Accelerator
 
 import evaluation_metrics
 from data import dataset_factory, Prompt
@@ -98,7 +99,7 @@ def run_lm_experiment_datasets(
     """
     timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M")
     out_csv = f"{out_csv}_{timestamp}.csv"
-
+    accelerator = Accelerator()
     header_written = os.path.exists(out_csv)
 
     with open(out_csv, "a", newline="") as f:
@@ -149,7 +150,7 @@ def run_lm_experiment_datasets(
                         for prompt in prompts:
 
                             with torch.no_grad():
-                                inputs = tokenizer(prompt.text, return_tensors="pt")
+                                inputs = tokenizer(prompt.text, return_tensors="pt").to(accelerator.device)
                                 outputs = model.generate(**inputs, max_new_tokens=max_tokens, do_sample=False, stop_strings="\n", tokenizer=tokenizer, repetition_penalty=penalty)
                             generated_text = tokenizer.decode(outputs[0], skip_special_tokens=True)
 
