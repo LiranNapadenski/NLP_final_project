@@ -77,7 +77,7 @@ def build_lm_model(name: str, phase: str = "small", snapshot_step: str = None):
     # Load model
     model = AutoModelForCausalLM.from_pretrained(model_name, revision=revision)
     model.config.pad_token_id = tokenizer.pad_token_id
-    model.to(device)
+    model.parallelize()
     model.eval()
 
     return tokenizer, model, device, model_name
