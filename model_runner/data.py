@@ -42,9 +42,9 @@ class NumberRanges:
 
 # Number ranges
 MAX_NUMBERS = {
-    NumberRanges.SMALL: 10,
-    NumberRanges.MEDIUM: 30,
-    NumberRanges.LARGE: 150,
+    NumberRanges.SMALL: 8,
+    NumberRanges.MEDIUM: 20,
+    NumberRanges.LARGE: 70,
 }
 
 class PromptOperators:
@@ -119,8 +119,8 @@ class PromptTemplate:
                                  (PromptOperators.MINUS, self.subtraction_verbs)]:
             for verb in verbs:
                 for _ in range(num_of_prompts):
-                    num1 = random.randint(1, max_number)
-                    num2 = random.randint(1, num1)
+                    num1 = random.randint(2, max_number)
+                    num2 = random.randint(1, num1-1)
 
                     if randomize_number_format:
                         if num1 > NUM_TO_TEXT_MAX:
@@ -226,6 +226,7 @@ def dataset_factory(dataset_name: str, prompts_per_verb=20, generate_all_prompts
 if __name__ == "__main__":
     # Test
     prompts = dataset_factory("implicit_small", prompts_per_verb=20, generate_all_prompts=False)
-    import evaluation_metrics
     for p in prompts:
-        print(set(evaluation_metrics.split_by_all_punctuations(p.text)))
+        pass
+    sett = {'6'}
+    print(sett.pop())
