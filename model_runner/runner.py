@@ -149,7 +149,7 @@ def run_lm_experiment_datasets(
                         for prompt in prompts:
 
                             with torch.no_grad():
-                                inputs = tokenizer(prompt.text, return_tensors="pt").to(accelerator.device)
+                                inputs = tokenizer("Hello world", return_tensors="pt").to(model.device)
                                 outputs = model.generate(**inputs, max_new_tokens=max_tokens, do_sample=False, stop_strings="\n", tokenizer=tokenizer, repetition_penalty=penalty)
                             generated_text = tokenizer.decode(outputs[0], skip_special_tokens=True)
 
