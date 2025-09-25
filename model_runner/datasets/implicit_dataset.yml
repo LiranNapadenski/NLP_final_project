@@ -1,7 +1,7 @@
 - id: 1
-  template: "Danny was carrying {num1} {item1}. Later during the day, he {verb} {num2} {item2}. How many {item1} does he have now?"
+  template: "Danny had {num1} {item1}. Later, he {verb} {num2} {item2}. How many {item1} does he have now?"
   items: ["apples", "oranges", "candy bars"]
-  addition_verbs: ["found", "purchased", "was given"]
+  addition_verbs: ["got", "picked up", "collected"]
   subtraction_verbs: ["ate", "consumed", "shared"]
 - id: 2
   template: "At first there are {num1} {item1} in the parking lot. How many {item2} are there after {num2} {item1} {verb}?"
@@ -10,8 +10,9 @@
   subtraction_verbs: ["leave", "drive out", "pull away"]
 - id: 3
   template: "You started the journey with {num1} {item1}. You {verb} {num2} {item2} during your quest. How much {item1} do you have now?"
+  template: "You had {num1} {item1}. During your quest, you {verb} {num2} {item2}. How much {item1} do you have at the end of the quest?"
   items: ["gold coins", "silver coins", "dollar bills"]
-  addition_verbs: ["earned", "acquired", "retrieved"]
+  addition_verbs: ["earned", "received", "gained"]
   subtraction_verbs: ["spent", "gave away", "used"]
 - id: 4
   template: "I started the day with {num1} {item1}. Before lunch, I {verb} {num2} {item2}. How many do I have now?"
@@ -24,10 +25,10 @@
   addition_verbs: ["hired", "recruited", "brought in"]
   subtraction_verbs: ["fired", "laid off", "dismissed"]
 - id: 6
-  template: "In the supermarket there are {num1} {item1}, how many {item1} are there after {num2} {item2} {verb}?"
+  template: "In the supermarket there are {num1} {item1}. Then, {num2} {item2} {verb}. How many {item1} are there after that?"
   items: ["milk crates", "yogurt boxes", "bread packages"]
-  addition_verbs: ["arrived from the factory", "restocked", "shipped in"]
-  subtraction_verbs: ["were sold", "got spoiled", "were consumed"]
+  addition_verbs: ["arrived", "came in", "shipped in"]
+  subtraction_verbs: ["were sold", "were purchased", "were consumed"]
 - id: 7
   template: "At the park, {num1} {item1} are playing. A few minutes later {num2} {item2} {verb}. So how many {item1} are in the park right now?"
   items: ["kids", "boys", "girls", "friends"]
@@ -39,9 +40,9 @@
   addition_verbs: ["board", "hop on", "enter"]
   subtraction_verbs: ["exit", "get off", "left"]
 - id: 9
-  template: "{num1} {item1} are sitting on a wire above the street. A moment later {num2} {item2} {verb} that wire. How many {item1} are then on the wire?"
+  template: "There are {num1} {item1} on a wire above the street. A moment later, {num2} {item2} {verb} that wire. How many {item1} are on the wire after that?"
   items: [ "birds", "pigeons", "crows"]
-  addition_verbs: [ "land on", "settle on", "alight on" ]
+  addition_verbs: [ "land on", "hop onto", "perch on" ]
   subtraction_verbs: [ "fly off", "take off", "soar away from"]
 - id: 10
   template: "Once upon a time there was a small town with {num1} {item1}. Over the years {num2} {item2} {verb}. Given that information only, how many {item1} are standing there today?"
