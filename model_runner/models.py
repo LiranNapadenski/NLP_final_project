@@ -75,7 +75,11 @@ def build_lm_model(name: str, phase: str = "small", snapshot_step: str = None):
         tokenizer.pad_token = tokenizer.eos_token
 
     # Load model
-    model = AutoModelForCausalLM.from_pretrained(model_name, revision=revision)
+    model = AutoModelForCausalLM.from_pretrained(
+        model_name,
+        revision=revision,
+        torch_dtype=torch.float16,   # ✅ half precision
+    )
     model.config.pad_token_id = tokenizer.pad_token_id
     model.to(device)
     model.eval()
