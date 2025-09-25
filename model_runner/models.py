@@ -47,11 +47,11 @@ def build_lm_model(name: str, phase: str = "small", snapshot_step: str = None):
     elif name == "pythia":
         # Map sizes to Pythia models
         if phase == "small":
-            model_name = "EleutherAI/pythia-410m-deduped"
-        elif phase == "medium":
             model_name = "EleutherAI/pythia-1.4b-deduped"
-        else:  # large
+        elif phase == "medium":
             model_name = "EleutherAI/pythia-2.8b-deduped"
+        else:  # large
+            model_name = "EleutherAI/pythia-6.9b-deduped"
 
         # Validate and set snapshot revision
         if snapshot_step:
