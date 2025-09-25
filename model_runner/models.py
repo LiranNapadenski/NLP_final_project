@@ -30,11 +30,11 @@ def build_lm_model(name: str, phase: str = "small", snapshot_step: str = None):
 
     elif name == "neo":
         if phase == "small":
-            model_name = "EleutherAI/gpt-neo-125M"
-        elif phase == "medium":
             model_name = "EleutherAI/gpt-neo-1.3B"
-        else:  # large
+        elif phase == "medium":
             model_name = "EleutherAI/gpt-neo-2.7B"
+        else:  # large
+            model_name = "EleutherAI/gpt-neo-6.9B"
 
     elif name == "opt":
         if phase == "small":
