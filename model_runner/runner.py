@@ -11,6 +11,8 @@ from utils import set_seed
 import re 
 import datetime
 import numpy as np
+import deepspeed
+
 
 try:
     import wandb
@@ -64,6 +66,8 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--wandb-mode", type=str, default="online", choices=["online", "offline", "disabled"]) 
     p.add_argument("--wandb-group", type=str, default="", help="Optional group name")
 
+    p = deepspeed.add_config_arguments(p)
+    
     return p.parse_args()
 
 
@@ -149,8 +153,10 @@ def run_lm_experiment_datasets(
                         for prompt in prompts:
 
                             with torch.no_grad():
-                                inputs = tokenizer("Hello world", return_tensors="pt").to(model.device)
-                                outputs = model.generate(**inputs, max_new_tokens=max_tokens, do_sample=False, stop_strings="\n", tokenizer=tokenizer, repetition_penalty=penalty)
+                                device = next(model.parameters()).device
+                                inputs = tokenizer("Hello world", return_tensors="pt")
+                                inputs = {k: v.to(device) for k, v in inputs.items()}
+                                outputs = model.generate(**inputs, max_new_tokens=max_tokens, do_sample=False, repetition_penalty=penalty)
                             generated_text = tokenizer.decode(outputs[0], skip_special_tokens=True)
 
                             # Extract only what comes after the final "Answer:"
