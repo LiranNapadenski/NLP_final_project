@@ -9,7 +9,7 @@
   addition_verbs: ["arrive","drive in","make their way in"]
   subtraction_verbs: ["leave", "drive out", "pull away"]
 - id: 3
-  template: "You started the journey with {num1} {item1}. You {verb} {num2} {item2} during your quest. How much {item1} do you have now?"
+  #template: "You started the journey with {num1} {item1}. You {verb} {num2} {item2} during your quest. How much {item1} do you have now?"
   template: "You had {num1} {item1}. During your quest, you {verb} {num2} {item2}. How much {item1} do you have at the end of the quest?"
   items: ["gold coins", "silver coins", "dollar bills"]
   addition_verbs: ["earned", "received", "gained"]
