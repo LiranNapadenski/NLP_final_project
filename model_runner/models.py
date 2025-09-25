@@ -78,10 +78,10 @@ def build_lm_model(name: str, phase: str = "small", snapshot_step: str = None):
     model.config.pad_token_id = tokenizer.pad_token_id
     model = deepspeed.init_inference(
         model,
-        mp_size=3,            # number of GPUs
-        dtype="fp16",          # mixed precision
+        mp_size=1,            # number of GPUs
+        dtype=torch.float32,           # mixed precision
         replace_method="auto",
-        replace_with_kernel_inject=True,
+        replace_with_kernel_inject=False,
     )
     model.eval()
 
