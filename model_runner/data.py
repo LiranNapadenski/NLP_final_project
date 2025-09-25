@@ -177,8 +177,6 @@ def build_dataset(dataset_type, number_range_key, prompts_per_verb=20, generate_
     :generate_all_prompts: whether to generate all possible prompts in each template
     """
     templates_yml_path = "datasets/" + dataset_type + "_dataset.yml"
-    script_dir = os.path.dirname(os.path.realpath(__file__)) 
-    templates_yml_path = os.path.join(script_dir, templates_yml_path)
     
     with open(templates_yml_path, "r") as f:
 
