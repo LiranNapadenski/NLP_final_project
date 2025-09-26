@@ -108,8 +108,7 @@ def generate_and_evaluate(model, tokenizer, prompt, max_tokens: int, penalty: fl
             max_new_tokens=max_tokens, 
             tokenizer=tokenizer, 
             do_sample=False, 
-            repetition_penalty=penalty, 
-            stop_strings='\n'
+            repetition_penalty=penalty
         )
         
     generated_text = tokenizer.decode(outputs[0], skip_special_tokens=True)
