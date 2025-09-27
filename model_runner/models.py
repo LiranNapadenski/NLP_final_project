@@ -61,7 +61,13 @@ def build_lm_model(name: str, phase: str = "small", snapshot_step: str = None):
                     f"Choose from {PYTHIA_PUBLIC_CHECKPOINTS[:5]}... up to step143000"
                 )
             revision = snapshot_step
+            
+    elif name == "llama":
+        model_name = "meta-llama/Llama-3.2-1B"
 
+    elif name == "falcon":
+        model_name = "tiiuae/Falcon3-1B-Base"
+        
     else:
         raise ValueError(f"Unknown model family: {name}")
     
