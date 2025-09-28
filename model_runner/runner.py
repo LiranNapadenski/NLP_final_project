@@ -151,7 +151,7 @@ def run_lm_experiment_datasets(
 
                             with torch.no_grad():
                                 inputs = tokenizer(prompt.text, return_tensors="pt").to(device)
-                                outputs = model.generate(**inputs, max_new_tokens=max_tokens, do_sample=False, stop_strings="\n", tokenizer=tokenizer, repetition_penalty=penalty)
+                                outputs = model.generate(**inputs, max_new_tokens=max_tokens, do_sample=False, tokenizer=tokenizer, repetition_penalty=penalty)
                             generated_text = tokenizer.decode(outputs[0], skip_special_tokens=True)
 
                             # Extract only what comes after the final "Answer:"
