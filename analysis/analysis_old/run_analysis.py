@@ -12,7 +12,7 @@ from typing import Optional, Dict, Any
 
 # Import our modular components
 import plot
-
+import analysis_utils
 
 class AnalysisRunner:
     """Main class for running comprehensive analysis."""
@@ -27,7 +27,7 @@ class AnalysisRunner:
             verbose: Whether to print progress messages
         """
         self.data_path = data_path
-        self.output_dir = Path(output_dir) if output_dir else Path("..")
+        self.output_dir = Path(output_dir) if output_dir else Path("../..")
         self.verbose = verbose
         self.data = None
         self.results = {}
@@ -36,7 +36,9 @@ class AnalysisRunner:
         """Load and clean the data."""
         if self.verbose:
             print("Loading data...")
-        self.data = utils.load_data(self.data_path, verbose=self.verbose)
+        self.data = analysis_utils.load_data(self.data_path)
+        if self.verbose:
+            print(f"Loaded  {len(self.data)} rows with {len(self.data.columns)} columns")
         return self.data
     
     def calculate_metrics(self) -> Dict[str, Any]:

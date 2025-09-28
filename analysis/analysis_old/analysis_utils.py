@@ -11,7 +11,7 @@ This module provides clean, modular functions for data loading, processing,
 and statistical analysis without excessive output.
 """
 
-def load_data(filepath: str, verbose: bool = False) -> pd.DataFrame:
+def load_data(filepath: str) -> pd.DataFrame:
     """
     Load and clean the CSV data.
     
@@ -30,13 +30,16 @@ def load_data(filepath: str, verbose: bool = False) -> pd.DataFrame:
         data[col] = data[col].astype(str).str.strip()
     
     # Ensure correct data types
-    data['correct'] = data['correct'].astype(bool)
+    data['has_single_number'] = data['has_single_number'].astype(bool)
+    data['has_answer'] = data['has_answer'].astype(bool)
+    data['right_direction'] = data['right_direction'].astype(bool)
+
     data['snapshot'] = data['snapshot'].astype(int)
     data['seed'] = data['seed'].astype(int)
-    
-    if verbose:
-        print(f"Loaded {len(data)} rows with {len(data.columns)} columns")
-    
+    data['first_generated_number'] = data['first_generated_number'].astype(int)
+    data['diff_from_answer'] = data['diff_from_answer'].astype(int)
+    data['template_id'] = data['template_id'].astype(int)
+
     return data
 
 
